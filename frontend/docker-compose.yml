@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    dns: 8.8.8.8
+    environment:
+      - NEXT_PUBLIC_API_HOST=192.168.6.106
+      - NEXT_PUBLIC_API_PORT=6000
+      - NEXT_PUBLIC_API_PORT_FE=4000
+      - NEXT_PUBLIC_X_API_KEY=e6a637643ca02f19580e14895664d470
+      - NEXT_PUBLIC_CONS_ID=39205596
+
+    networks:
+      - app_network
+    stdin_open: true
+    tty: true
+    restart: always
+    command: ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
+
+networks:
+  app_network:
+    driver: bridge
