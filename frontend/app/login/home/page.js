@@ -72,112 +72,144 @@ const Home= () => {
         setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
     }
 
-    const handleSubmit = async (values) => {
-        try {
-             if (files.length === 0) {
+   const handleSubmit = async (values) => {
+    try {
+        if (files.length === 0) {
             Swal.fire({
-                    icon: "warning",
-                    title: "Upload Minimal 1 File",
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                });            
-                return;
+                icon: "warning",
+                title: "Upload Minimal 1 File",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+            });            
+            return;
         }
+
         const token = TokenStorage.getToken();
+        const timestamp = Date.now();
 
-        // Convert files to base64 for passing through router
-            const timestamp = Date.now();
+        // Show loading
+        Swal.fire({
+            title: 'Uploading and processing files...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
+        // Step 1: Convert files to base64 for sessionStorage (for PDF viewer)
         const fileData = await Promise.all(
-        files.map(async (file, index) => {
-            const base64 = await convertToBase64(file);
-            const cleanName = file.name
-                .replace(/\.[^/.]+$/, "")
-                .replace(/[^a-zA-Z0-9]/g, "_")
-                .substring(0, 30);
+            files.map(async (file, index) => {
+                const cleanName = file.name
+                    .replace(/\.[^/.]+$/, "")
+                    .replace(/[^a-zA-Z0-9]/g, "_")
+                    .substring(0, 30);
 
-            const payload = {
-                idfile: `${timestamp}_${cleanName}_${index + 1}`,
-                file: file.name,
-                nodoc: index,
-                tgldoc: date,
-                nilaidoc:"10000",
-                namejidentitas: "-",
-                noidentitas: "-",
-                namedipungut: "-"
-            };
+                // Convert to base64 for storage
+                const base64 = await convertToBase64(file);
+
+                const payload = {
+                    idfile: `${timestamp}_${cleanName}_${index + 1}`,
+                    file: file.name,
+                    nodoc: index,
+                    tgldoc: date,
+                    nilaidoc: "10000",
+                    namejidentitas: "-",
+                    noidentitas: "-",
+                    namedipungut: "-"
+                };
+                
+                return {
+                    name: file.name,
+                    size: file.size,
+                    data: base64,  // ✅ For PDF viewer
+                    payload: payload,
+                    meta: {
+                        date: date,
+                        tipeDokumen: tipeDokumen,
+                        kode: kode,
+                        nomorDokumen: file.name
+                    }
+                };
+            })
+        );
+
+        // Build payloads array
+        const allPayloads = fileData.map(item => item.payload);
+        
+        // ✅ Store in sessionStorage for PDF viewer
+        sessionStorage.setItem('documentDataList', JSON.stringify(fileData));
+        sessionStorage.setItem('filesPayload', JSON.stringify(allPayloads));
+        
+        console.log("✅ Data stored in sessionStorage");
+
+        // Step 2: Create FormData for API (with actual files)
+        const formData = new FormData();
+        
+        // Add all PDF files
+        files.forEach((file) => {
+            formData.append('files', file);  // ✅ Actual File objects
+        });
+        
+        // Add metadata as JSON string
+        formData.append('metadata', JSON.stringify(allPayloads));
+        formData.append('spesimenPath', '/app/sharefolder/STAMP/default.png');
+        formData.append('tipeDokumen', tipeDokumen);
+        formData.append('kode', kode);
+
+        console.log("📤 Sending", files.length, "files to API");
+
+        // Step 3: Send to API
+        const batchResponse = await StampingAPI.BatchProcess(token, formData);
+        
+        console.log("✅ API Response:", batchResponse);
+
+        Swal.close();
+
+        if (batchResponse.statusCode == 0) {
+            // ✅ Store API response for later use
+            sessionStorage.setItem('batchProcessResponse', JSON.stringify(batchResponse));
             
-            return {
-                name: file.name,
-                size: file.size,
-                data: base64,
-                payload: payload,  // Include payload in each file object
-                meta: {
-                    date: values.tanggal.format('YYYY-MM-DD'),
-                    tipeDokumen: values.tipeDokumen,
-                    nomorDokumen: file.name
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil!",
+                text: `${files.length} dokumen berhasil diproses.`,
+                timer: 1500,
+                showConfirmButton: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    router.push('/login/pdfViewer');
                 }
-            };
-        })
-    );
-
-    // Build the complete payloads array
-    const allPayloads = fileData.map(item => item.payload);
-    console.log("ALLPAYLOADS",allPayloads);
-    
-    // Update state with all payloads
-    setFilesPayload(allPayloads);  // ✅ Set entire array at once
-    
-    // Store in sessionStorage
-    sessionStorage.setItem('documentDataList', JSON.stringify(fileData));
-    sessionStorage.setItem('filesPayload', JSON.stringify(allPayloads));  // Store payloads separately if needed
-
-    const batchResponse = await StampingAPI.BatchProcess(token,allPayloads)
-    console.log("RESP",batchResponse);
-
-    if(batchResponse.statusCode == 0){
-          Swal.fire({
-        icon: "success",
-        title: "Berhasil!",
-        text: `Data berhasil diproses.`,
-        timer: 1500,
-        showConfirmButton: true,
-      }).then((result) => {
-        if(result.isConfirmed){
-        router.push('/login/pdfViewer');
-
+            });
+        } else {
+            throw new Error(batchResponse.message || 'Processing failed');
         }
-      });
 
-    }
-        // Navigate to PDF viewer page
-
-        } catch (error) {
-            console.error("❌ Error:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Gagal Process Data!",
-        text: error.message,
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-      });
-        }
-       
-    }
-
-    const convertToBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
+    } catch (error) {
+        console.error("❌ Error:", error);
+        Swal.close();
+        Swal.fire({
+            icon: "error",
+            title: "Gagal Process Data!",
+            text: error.message,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
         });
     }
-    
+};
+
+// Helper function to convert file to base64
+const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+};
 
     return (
         <Layout className="flex justify-center items-center w-screen " style={{background:'transparent', minHeight: '60vh'}}>

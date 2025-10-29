@@ -16,7 +16,7 @@ const PDFViewer = () => {
   useEffect(() => {
     // ✅ Get all uploaded document data
     const storedList = JSON.parse(sessionStorage.getItem("documentDataList")) || [];
-
+    console.log("LIST",storedList);
     if (storedList.length > 0) {
       setFiles(storedList);
       console.log("Loaded documentDataList:", storedList);
