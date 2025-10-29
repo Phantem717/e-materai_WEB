@@ -1,12 +1,12 @@
 version: '3.8'
-
+name: ematerai_frontend
 services:
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "4000:4000"
     dns: 8.8.8.8
     environment:
       - NEXT_PUBLIC_API_HOST=192.168.6.106
@@ -16,12 +16,13 @@ services:
       - NEXT_PUBLIC_CONS_ID=39205596
 
     networks:
-      - app_network
+      - ematerai_FE_network
     stdin_open: true
     tty: true
     restart: always
-    command: ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
+    command: ["npx", "next", "start", "-p", "4000", "-H", "0.0.0.0"]
 
 networks:
-  app_network:
+  ematerai_FE_network:
+    name: ematerai_FE_network
     driver: bridge
