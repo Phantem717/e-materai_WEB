@@ -19,20 +19,9 @@ const stampingRoutes = require('../src/routes/stampingroutes')
   app.use('/api/stamp',stampingRoutes);
   
 (async function startServer() {
-  // try {
-  //   await initDb();
-  //   await setupDatabase();
-  // } catch (error) {
-  //   console.error('Gagal inisialisasi database:', error);
-  //   process.exit(1);
-  // }
-
-  // Middleware untuk parsing JSON dan CORS
-  
- 
   // Menjalankan server pada semua network interfaces
   const PORT = process.env.PORT ;
-  const HOST =  process.env.HOST
+  const HOST =  '0.0.0.0'
   server.listen(PORT,HOST, () => {
     console.log(`✅ Server berjalan pada ${HOST} ${PORT}`);
   });
