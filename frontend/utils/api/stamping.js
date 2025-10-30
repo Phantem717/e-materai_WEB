@@ -25,7 +25,7 @@ const StampingAPI = {
             });
             
             const headers = {
-                'Content-Type': 'application/json',
+                'Content-Type': 'multipart/form-data',  // ✅ Changed from application/json
                 'x-cons-id': CONS_ID,
                 'x-timestamp': timestamp,
                 'x-signature': signature,

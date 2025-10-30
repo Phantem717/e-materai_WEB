@@ -1,6 +1,11 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const http = require('http');
 const cors = require("cors"); // 🔥 Tambahkan CORS
+const { STAMP_DIR, UNSIGNED_DIR, SIGNED_DIR } = require('./utils/savePDF');
+
+
 
 require('dotenv').config({ path: './.env' }); // Or just require('dotenv').config();
 
@@ -17,7 +22,13 @@ const stampingRoutes = require('../src/routes/stampingroutes')
   app.use('/api/create-qr',createQrRoutes);
   app.use('/api/retrieve',retrieveRoutes);
   app.use('/api/stamp',stampingRoutes);
-  
+
+  [STAMP_DIR, UNSIGNED_DIR, SIGNED_DIR].forEach(dir => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+        console.log(`✅ Created directory: ${dir}`);
+    }
+});
 (async function startServer() {
   // Menjalankan server pada semua network interfaces
   const PORT = process.env.PORT ;

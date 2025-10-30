@@ -5,10 +5,10 @@ const INVENTORY_URL= process.env.INVENTORY_URL;
 const HOST= process.env.HOST;
 const PORT = process.env.PORT;
 
-const return_url = `http://${HOST}:${PORT}`
+const return_url = `https://ematerai.rscarolus.or.id/api/stamp/batch-process`
 async function batchProcessing(payload,headers) {
     try {      
-        console.log("PAYLOAD",payload);
+        console.log("PAYLOAD_SERVICE",payload);
         const response = await axios({
             method: 'post',
             url: `${INVENTORY_URL}/api/v2/serialnumber/batch`,
@@ -23,7 +23,7 @@ async function batchProcessing(payload,headers) {
                 'Authorization': headers
             }
         });
-        console.log("RESPONSE BATCH",response);
+        // console.log("RESPONSE BATCH",response.data);
         return response.data;
     } catch (error) {
         console.error("BATCH Error Details:", {
