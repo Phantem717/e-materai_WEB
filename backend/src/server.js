@@ -32,7 +32,7 @@ const stampingRoutes = require('../src/routes/stampingroutes')
 (async function startServer() {
   // Menjalankan server pada semua network interfaces
   const PORT = process.env.PORT ;
-  const HOST =  '0.0.0.0'
+  const HOST =  process.env.HOST;
   server.listen(PORT,HOST, () => {
     console.log(`✅ Server berjalan pada ${HOST} ${PORT}`);
   });
