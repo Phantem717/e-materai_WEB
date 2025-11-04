@@ -53,7 +53,6 @@ const RetrieveAPI = {
             
             // Debug logging
             console.log("=== RETRIEVE API DEBUG ===");
-            console.log("Token:", token);
             console.log("Headers:", {
                 'x-cons-id': CONS_ID,
                 'x-timestamp': timestamp,

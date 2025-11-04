@@ -49,7 +49,7 @@ const getJsonController = async (req, res) => {
       console.log("✅ Inserted:", insert,saveSTAMP);
     }
 
-    return res.status(200).json({ message: "Data inserted successfully", data: response });
+    return res.status(200).json({ message: "Data inserted successfully", data: response, status: 200 });
 
   } catch (error) {
     console.error("❌ Get JSON Failed:", error);
