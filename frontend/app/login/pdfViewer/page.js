@@ -22,6 +22,7 @@ const PDFViewer = () => {
       console.log("Loaded documentDataList:", storedList);
     } else {
       console.log("No documentDataList found in sessionStorage");
+      
     }
   }, []);
 

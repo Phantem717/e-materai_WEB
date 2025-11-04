@@ -5,6 +5,7 @@ const INVENTORY_URL= process.env.INVENTORY_URL;
 const HOST= process.env.HOST;
 const PORT = process.env.PORT;
 
+
 const return_url = `https://ematerai.rscarolus.or.id`
 async function batchProcessing(payload,headers) {
     try {      

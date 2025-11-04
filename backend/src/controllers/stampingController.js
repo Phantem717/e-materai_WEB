@@ -7,11 +7,7 @@ const BatchProcessController = async (req, res) => {
     // Configure multer storage
       const UNSIGNED_DIR = path.join('/home/sirs/signadapter/sharefolder/UNSIGNED');
       console.log("DIR",UNSIGNED_DIR);
-    // OR if it's on the same level as your project:
-    // const UNSIGNED_DIR = '/home/sirs/signadapter/sharefolder/UNSIGNED';
-    // OR for Windows:
-    // const UNSIGNED_DIR = 'C:/E-MATERAI/signadapter/sharefolder/UNSIGNED';
-
+   
     // ✅ Create directory if it doesn't exist
     if (!fs.existsSync(UNSIGNED_DIR)) {
         fs.mkdirSync(UNSIGNED_DIR, { recursive: true });

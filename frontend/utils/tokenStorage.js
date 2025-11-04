@@ -7,7 +7,7 @@ export const TokenStorage = {
             console.log('💾 Setting token in Docker environment');
             console.log('Current host:', window.location.hostname);
             console.log('Current protocol:', window.location.protocol);
-            
+
             // ✅ More permissive cookie settings for Docker
             Cookies.set('auth_token', token, {
                 expires: 1,
@@ -20,6 +20,7 @@ export const TokenStorage = {
             console.log('Cookie set, verifying...');
             const check = Cookies.get('auth_token');
             
+
             if (check === token) {
                 console.log('✅ Token saved successfully');
                 return true;
@@ -43,3 +44,7 @@ export const TokenStorage = {
     return !!Cookies.get('auth_token');
   }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> c320fb7d65ab93222137ab0e123da02533afbec3
