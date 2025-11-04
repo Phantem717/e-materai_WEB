@@ -4,8 +4,7 @@ require('dotenv').config();
 const INVENTORY_URL= process.env.INVENTORY_URL;
 const HOST= process.env.HOST;
 const PORT = process.env.PORT;
-
-const return_url = `https://ematerai.rscarolus.or.id/api/stamp/batch-process`
+const return_url = process.env.RETURN_URL;
 async function batchProcessing(payload,headers) {
     try {      
         console.log("PAYLOAD_SERVICE",payload);
@@ -32,7 +31,7 @@ async function batchProcessing(payload,headers) {
             serverResponse: error.response?.data,
             message: error.message
         });
-        throw new Error(`Login failed: ${error.response?.data?.message || error.message}`);
+        throw new Error(`Processing failed: ${error.response?.data?.message || error.message}`);
     }
 }
 

@@ -9,7 +9,7 @@ const API_URL= process.env.API_URL;
 console.log("API",API_URL);
 async function login(username, password) {
     try {      
-
+        console.log("CRED",username,password);
         const response = await axios({
             method: 'post',
             url: `${API_URL}/api/users/login`,
