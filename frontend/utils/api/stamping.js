@@ -15,28 +15,45 @@ const StampingAPI = {
             
             // Debug logging
             console.log("=== BATCH PROCESS API DEBUG ===");
-            console.log("Token:", token);
-            console.log("Payload:", payload);
-            console.log("Headers:", {
-                'x-cons-id': CONS_ID,
-                'x-timestamp': timestamp,
-                'x-signature': signature,
-                'Authorization': `Bearer ${token}`
-            });
+            console.log("Token:", token ? "exists" : "missing");
+            console.log("Payload type:", payload?.constructor?.name);
+            console.log("Is FormData:", payload instanceof FormData);
             
+            // Log FormData contents properly
+            if (payload instanceof FormData) {
+                console.log("FormData contents:");
+                const entries = Array.from(payload.entries());
+                console.log("Total entries:", entries.length);
+                
+                entries.forEach(([key, value]) => {
+                    if (value instanceof File) {
+                        console.log(`  ${key}: File(name="${value.name}", size=${value.size} bytes, type="${value.type}")`);
+                    } else {
+                        console.log(`  ${key}:`, typeof value === 'string' && value.length > 100 ? value.substring(0, 100) + '...' : value);
+                    }
+                });
+            } else {
+                console.error("ERROR: Payload is not FormData! Type:", typeof payload);
+            }
+            
+            // ❌ REMOVED Content-Type - axios sets it automatically for FormData
             const headers = {
-                'Content-Type': 'multipart/form-data',  // ✅ Changed from application/json
+                // 'Content-Type': 'multipart/form-data', // ❌ DON'T SET THIS!
                 'x-cons-id': CONS_ID,
                 'x-timestamp': timestamp,
                 'x-signature': signature,
                 'Authorization': `Bearer ${token}`
             };
-            
-            // ✅ CORRECT: POST request with payload in body
+
+            console.log("Request headers:", headers);
+            const requestBody = {
+                payload
+            }
+            // ✅ CORRECT: POST request with FormData payload
             const response = await axios.post(
                 `${BASE_URL}/api/stamp/batch-process`, 
-                payload,  // Request body (2nd parameter)
-                { headers }  // Config with headers (3rd parameter)
+                payload,  // FormData object
+                { headers }  // Headers without Content-Type
             );
 
             console.log("BATCH PROCESS SUCCESS:", response.status);
@@ -48,8 +65,14 @@ const StampingAPI = {
             console.error("Error message:", error.message);
             console.error("Response data:", error.response?.data);
             console.error("Response status:", error.response?.status);
-            console.error("Request headers:", error.config?.headers);
-            throw error;
+            console.error("Response headers:", error.response?.headers);
+            console.error("Request config:", error.config);
+            
+            // Return error in expected format
+            return {
+                statusCode: 1,
+                message: error.response?.data?.message || error.message
+            };
         }
     }
 };

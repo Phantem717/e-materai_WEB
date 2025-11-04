@@ -44,7 +44,3 @@ export const TokenStorage = {
     return !!Cookies.get('auth_token');
   }
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> c320fb7d65ab93222137ab0e123da02533afbec3

@@ -2,6 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const STAMP_URL= process.env.STAMP_URL;
+const return_url = process.env.RETURN_URL
 
 async function getTypes(header) {
     try {      
@@ -27,4 +28,32 @@ async function getTypes(header) {
     }
 }
 
-module.exports = { getTypes};
+
+async function retrieveJSON(batchId){
+    try {
+        const response = await axios ({
+            method: 'get',
+            url: return_url
+        });
+        // console.log("RESPONSE",response.data);
+
+        const data = response.data;
+        console.log("BID",batchId); // "object"
+        // console.log("All batchIds:", response.data.map(i => i.result.batchId));
+// console.log("Looking for:", batchId);
+        const found = data.filter(item => item.result.batchId === batchId);
+        // console.log("FOUND",found);
+        return found;
+    } catch (error) {
+        console.error("JSON RETRIEVAL Error Details:", {
+            status: error.response?.status,
+            headersSent: error.config?.headers,
+            serverResponse: error.response?.data,
+            message: error.message
+        });
+        throw new Error(`JSON RETRIVEAL failed: ${error.response?.data?.message || error.message}`);
+    }
+}
+
+
+module.exports = { getTypes,retrieveJSON};
