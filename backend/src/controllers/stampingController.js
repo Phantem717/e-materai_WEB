@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const BatchProcessController = async (req, res) => {
     // Configure multer storage
-      const UNSIGNED_DIR = path.join('/home/sirs/signadapter/sharefolder');
+      const UNSIGNED_DIR = path.join('/home/sirs/signadapter/sharefolder/UNSIGNED');
       console.log("DIR",UNSIGNED_DIR);
     // OR if it's on the same level as your project:
     // const UNSIGNED_DIR = '/home/sirs/signadapter/sharefolder/UNSIGNED';
@@ -92,7 +92,7 @@ const BatchProcessController = async (req, res) => {
             
             return {
                 ...meta,  // Merge metadata from frontend
-                src: `/app/sharefolder/UNSIGNED/${file.filename}`,  // Docker path
+                src: `/home/sirs/signadapter/sharefolder/UNSIGNED/${file.filename}`,  // Docker path
                 // spesimenPath: spesimenPath,
                 file: file.originalname,
                 size: file.size

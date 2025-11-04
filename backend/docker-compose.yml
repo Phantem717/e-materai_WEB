@@ -8,15 +8,17 @@ services:
     container_name: ematerai_backend_app  # ✅ Make sure this is correct
     dns: 8.8.8.8
     ports:
-      - "6000:6000"
+      - "8000:8000"
     environment:
       - API_URL=https://backendservicestg.e-meterai.co.id
       - STAMP_URL=https://stampv2stg.e-meterai.co.id
       - INVENTORY_URL=https://inventorystg.e-meterai.co.id
-      - PORT=6000
+      - PORT=8000
       - HOST=192.168.6.106
       - X_API_KEY=e6a637643ca02f19580e14895664d470
       - CONS_ID=39205596
+    volumes:
+      - /home/sirs/signadapter/sharefolder:/home/sirs/signadapter/sharefolder
     networks:
       - ematerai_network
     restart: always
@@ -26,3 +28,5 @@ networks:
     name: ematerai_network
     driver: bridge
 
+  mysql_network:
+    external: true
