@@ -15,6 +15,7 @@ import { TokenStorage } from '@/utils/tokenStorage';
 import RetrieveAPI from "@/utils/api/retrieve";
 import Image from "next/image";
 import Swal from "sweetalert2";
+import ResponseAPI from "@/utils/api/responses";
 const Home= () => {
     const [date,setDate]= useState("");
     const [files, setFiles] = useState([]);
@@ -44,9 +45,14 @@ const Home= () => {
         const token = TokenStorage.getToken();
 
         const typesResp = await RetrieveAPI.getTypes(token);
-        console.log("TYPES",typesResp.result);
-
+        if(typesResp.statusCode == '00'){
         setTypes(typesResp.result);
+
+        }else{
+            router.push('/login');
+        }
+        console.log("TYPES",typesResp.result,typesResp.statusCode != '00');
+
     }
 
     useEffect(() => {
@@ -116,11 +122,13 @@ const Home= () => {
                     nodoc: index,
                     tgldoc: date,
                     nilaidoc: "10000",
-                    namejidentitas: "-",
-                    noidentitas: "-",
-                    namedipungut: "-"
+                    namejidentitas: "KTP",
+                    noidentitas: "1234567890123456",
+                    namedipungut: "TEST"
                 };
                 
+                // const responseInsert =await ResponseAPI.insert(token)
+                // console.log("RESPONSE INSERT",responseInsert);
                 return {
                     name: file.name,
                     size: file.size,
@@ -176,7 +184,7 @@ const Home= () => {
                 icon: "success",
                 title: "Berhasil!",
                 text: `${files.length} dokumen berhasil diproses.`,
-                timer: 1500,
+                allowOutsideClick: false,
                 showConfirmButton: true,
             }).then((result) => {
                 if (result.isConfirmed) {

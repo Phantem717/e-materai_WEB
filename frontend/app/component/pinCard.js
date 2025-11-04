@@ -25,7 +25,8 @@ const PinCard = ({ isSubmit, setIsSubmit }) => {
             closeAfterTransition
             BackdropComponent={Backdrop}
             BackdropProps={{ timeout: 300 }}
-            className="flex justify-center items-center"
+            className="flex justify-center items-center z-100"
+
         >
             <Fade in={isSubmit}>
                 <Box className="bg-white rounded-lg p-10 shadow-md" style={{ width: '400px', maxWidth: '90%' }}>
