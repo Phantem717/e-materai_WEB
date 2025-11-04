@@ -14,4 +14,15 @@ const getTypeController = async  (req,res) => {
  
 }
 
-module.exports = {getTypeController};
+const getJsonController = async (req,res)=>{
+    try {
+        console.log("AUTH",req.headers["authorization"])
+    const headers = req.headers["authorization"];
+    const instances = req.params;
+    
+    } catch (error) {
+              console.error("Get JSON Failed: ",error);
+    res.status(500).json({ message: 'Failed to GET JSON', error: error.message });
+    }
+}
+module.exports = {getTypeController,getJsonController};
