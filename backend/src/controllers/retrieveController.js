@@ -25,11 +25,11 @@ const getJsonController = async (req, res) => {
 
     // 🔹 Retrieve JSON data from your service
     const response = await retrieveJSON(batchId);
-
+    console.log("RESPOSNE",response);
     // 🔹 Validate response
-    if (!Array.isArray(response) || response.length === 0) {
-      return res.status(400).json({ message: "No valid data found in response" });
-    }
+   // if (!Array.isArray(response) || response.length === 0) {
+     // return res.status(400).json({ message: "No valid data found in response" });
+    //}
 
     // 🔹 Process each document
     for (const item of response) {
@@ -49,7 +49,7 @@ const getJsonController = async (req, res) => {
         procId: result.procId,
         qrImage: qrBase64
       };
-
+	console.log("PAYLOAD",payload);
       // ✅ Insert into DB
       const insertResult = await create(payload);
 

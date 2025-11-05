@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const authCheck = require('../middleware/authMiddleware.js');
 const { getTypeController, getJsonController } = require('../controllers/retrieveController');
-const { STAMP_DIR } = require('../services/saveFileService');
+const STAMP_DIR = path.join('/home/sirs/signadapter/sharefolder/STAMP')
 // The error occurred here because one of the arguments was not a function.
 router.get('/get-type',authCheck,getTypeController); 
 // Define upload directory
@@ -43,7 +43,7 @@ const upload = multer({
 router.get('/get-type', authCheck, getTypeController);
 
 // ✅ Multer now handles PDF upload for this route
-router.post(
+router.get(
   '/get-json/:batchId',
   authCheck,
   upload.array('files', 50),

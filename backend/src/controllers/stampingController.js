@@ -3,45 +3,7 @@ const { batchProcessing } = require('../services/stampingService');
 
 const BatchProcessController = async (req, res) => {
 
-    // Configure multer storage
-      const UNSIGNED_DIR = path.join('/home/sirs/signadapter/sharefolder/UNSIGNED');
-      console.log("DIR",UNSIGNED_DIR);
-   
-    // ✅ Create directory if it doesn't exist
-    if (!fs.existsSync(UNSIGNED_DIR)) {
-        fs.mkdirSync(UNSIGNED_DIR, { recursive: true });
-        console.log('✅ Created directory:', UNSIGNED_DIR);
-    }
-
-    // Configure multer storage
-    const storage = multer.diskStorage({
-        destination: (req, file, cb) => {
-            console.log('📁 Saving to:', UNSIGNED_DIR);
-            cb(null, UNSIGNED_DIR);
-        },
-        filename: (req, file, cb) => {
-            const filename = `${file.originalname}`;
-            console.log('📄 Filename:', filename);
-            cb(null, filename);
-        }
-    });
-
-    const upload = multer({ 
-        storage: storage,
-        fileFilter: (req, file, cb) => {
-            console.log('🔍 Checking file:', file.originalname, file.mimetype);
-            if (file.mimetype === 'application/pdf') {
-                cb(null, true);
-            } else {
-                cb(new Error('Only PDF files allowed'));
-            }
-        },
-        limits: {
-            fileSize: 50 * 1024 * 1024  // 50MB limit
-        }
-    }).array('files', 50);
-
-    // Execute multer upload
+     // Execute multer upload
     try {
         console.log("=== BATCH CONTROLLER ===");
         console.log("Files received:", req.files?.length || 0);

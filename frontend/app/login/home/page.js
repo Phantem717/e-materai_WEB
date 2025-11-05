@@ -195,8 +195,9 @@ const Home = () => {
                     const payload = {
                         idfile: `${timestamp}_${cleanName}_${index + 1}`,
                         file: file.name,
-                        nodoc: index,
-                        tgldoc: date,
+                        nodoc: index+1,
+			namadoc: kode,
+                        tgldoc: dayjs(date).format('YYYY-MM-DD'),
                         nilaidoc: "10000",
                         namejidentitas: "KTP",
                         noidentitas: "1234567890123456",
