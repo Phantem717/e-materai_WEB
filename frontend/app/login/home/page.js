@@ -198,6 +198,8 @@ const handleSubmit = async (values) => {
                 namedipungut: "TEST"
             };
         });
+                        console.log("PAYLOADS",allPayloads);
+
 
         // ✅ Create FormData for upload
         const formData = new FormData();
@@ -208,7 +210,6 @@ const handleSubmit = async (values) => {
         });
 
         formData.append('metadata', JSON.stringify(allPayloads));
-        formData.append('spesimenPath', '/app/sharefolder/STAMP/default.png');
         formData.append('tipeDokumen', tipeDokumen);
         formData.append('kode', kode);
 
@@ -232,10 +233,11 @@ const handleSubmit = async (values) => {
             }
 
             // Fetch processed files info
-            const fileResp = await RetrieveAPI.getJSON(token, batchId);
+            const fileResp = await RetrieveAPI.getJSON(batchId);
             console.log("File Response:", fileResp);
 
             if (fileResp.status === 200) {
+                console.log("TEST");
                 // ✅ Store ONLY small metadata - NO files!
                 sessionStorage.setItem('filesMetadata', JSON.stringify(allPayloads));
                 sessionStorage.setItem('batchId', batchId);

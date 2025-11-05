@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const authCheck = require('../middleware/authMiddleware.js');
-const { getTypeController, getJsonController } = require('../controllers/retrieveController');
-
+const { getTypeController, getJsonController,getFilesController } = require('../controllers/retrieveController');
+const path = require('path');
+const fs = require('fs');
 // ============================================
 // ROUTES
 // ============================================
@@ -23,5 +24,7 @@ router.get(
   },
   getJsonController
 );
+
+router.get('/get-files/:batchId', authCheck, getFilesController);
 
 module.exports = router;
