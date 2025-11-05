@@ -31,18 +31,21 @@ async function getTypes(header) {
 
 async function retrieveJSON(batchId){
     try {
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        await delay(2000)
         const response = await axios ({
             method: 'get',
             url: return_url
         });
         console.log("RESPONSE",response.data);
-
         const data = response.data;
         console.log("BID",batchId); // "object"
         // console.log("All batchIds:", response.data.map(i => i.result.batchId));
 // console.log("Looking for:", batchId);
-        const found = data.filter(item => item.result.batchId === batchId);
-        // console.log("FOUND",found);
+        const found = data.filter(item => {
+            console.log(item.result.batchId)
+            return item.result.batchId == batchId});
+        console.log("FOUND",found);
         return found;
     } catch (error) {
         console.error("JSON RETRIEVAL Error Details:", {

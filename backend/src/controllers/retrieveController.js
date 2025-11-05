@@ -80,7 +80,6 @@ const getJsonController = async (req, res) => {
           console.log(`QR starts with: ${qrBase64.substring(0, 50)}`);
           
           // Check if it's valid base64 image data
-          if (qrBase64.startsWith('data:image')) {
             try {
               qrSavedPath = saveQR(qrBase64, `${docId}_STAMP`);
               console.log(`✅ QR saved at: ${qrSavedPath}`);
@@ -91,9 +90,7 @@ const getJsonController = async (req, res) => {
                 error: `QR save failed: ${qrError.message}`
               });
             }
-          } else {
-            console.warn(`⚠️ Invalid QR format for ${docId}, expected data:image/... but got: ${qrBase64.substring(0, 30)}`);
-          }
+         
         } else {
           console.warn(`⚠️ No QR image data for ${docId}`);
         }
