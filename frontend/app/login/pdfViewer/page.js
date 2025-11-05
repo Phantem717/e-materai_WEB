@@ -15,7 +15,7 @@ const PDFViewer = () => {
 
   useEffect(() => {
     // ✅ Get all uploaded document data
-    const storedList = JSON.parse(sessionStorage.getItem("documentDataList")) || [];
+    const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
     console.log("LIST",storedList);
     if (storedList.length > 0) {
       setFiles(storedList);
@@ -28,7 +28,7 @@ const PDFViewer = () => {
 
   const handleBack = () => {
     // ✅ Clear only document data
-    sessionStorage.removeItem("documentDataList");
+    sessionStorage.removeItem("filesMetadata");
     router.push("/login/home");
   };
 
