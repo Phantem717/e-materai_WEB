@@ -2,6 +2,8 @@
 const { batchProcessing } = require('../services/stampingService');
 
 const BatchProcessController = async (req, res) => {
+
+     // Execute multer upload
     try {
         console.log("=== BATCH CONTROLLER ===");
         console.log("Files received:", req.files?.length || 0);

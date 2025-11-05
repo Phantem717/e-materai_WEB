@@ -1,3 +1,4 @@
+
 import Cookies from 'js-cookie';
 
 export const TokenStorage = {
@@ -15,9 +16,10 @@ export const TokenStorage = {
                 secure: false,     // ✅ Force false for HTTP (Docker)
                 // Don't set domain - let browser handle it
             });
-
+            
             console.log('Cookie set, verifying...');
             const check = Cookies.get('auth_token');
+            
 
             if (check === token) {
                 console.log('✅ Token saved successfully');
@@ -42,4 +44,3 @@ export const TokenStorage = {
     return !!Cookies.get('auth_token');
   }
 }
-

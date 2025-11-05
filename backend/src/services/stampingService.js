@@ -7,7 +7,7 @@ const PORT = process.env.PORT;
 const return_url = process.env.RETURN_URL;
 async function batchProcessing(payload,headers) {
     try {      
-        console.log("PAYLOAD_SERVICE",payload);
+        console.log("PAYLOAD_SERVICE",payload,return_url);
         const response = await axios({
             method: 'post',
             url: `${INVENTORY_URL}/api/v2/serialnumber/batch`,
@@ -22,7 +22,7 @@ async function batchProcessing(payload,headers) {
                 'Authorization': headers
             }
         });
-        // console.log("RESPONSE BATCH",response.data);
+         console.log("RESPONSE BATCH",response.data);
         return response.data;
     } catch (error) {
         console.error("BATCH Error Details:", {

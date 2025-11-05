@@ -52,14 +52,15 @@ const Login = () => {
                     showConfirmButton: true,
                     timerProgressBar: true,
                     allowOutsideClick: false,
-                }).then((result) => {
-                    if(result.isConfirmed){
-                        router.push("/login/home");
 
-                    }
-                });
+                }).then((result)=>{
+		if(result.isConfirmed){
+		 router.push("/login/home");
 
-            }
+		}
+		});
+
+                           }
         } catch (error) {
             console.error("Error During Login", error.message);
             await Swal.fire({

@@ -33,16 +33,11 @@ const getJsonController = async (req, res) => {
 
     // 🔹 Retrieve JSON data from service
     const response = await retrieveJSON(batchId);
-
-    console.log("Retrieved response:", response?.length, "items");
-
+    console.log("RESPOSNE",response);
     // 🔹 Validate response
-    if (!Array.isArray(response) || response.length === 0) {
-      return res.status(404).json({ 
-        status: 404,
-        message: "No documents found for this batchId" 
-      });
-    }
+   // if (!Array.isArray(response) || response.length === 0) {
+     // return res.status(400).json({ message: "No valid data found in response" });
+    //}
 
     const processedDocs = [];
     const errors = [];
@@ -60,18 +55,18 @@ const getJsonController = async (req, res) => {
         const docId = result.document.idfile || `doc_${Date.now()}_${index}`;
         const qrBase64 = result.qrImage;
 
-        console.log(`Processing document ${index + 1}/${response.length}: ${docId}`);
-
-        // ✅ Build payload for DB
-        const payload = {
-          doc_id: docId,
-          serial_number: result.serialNumber || null,
-          document: JSON.stringify(result.document),
-          status: result.status || 'pending',
-          batchId: result.batchId,
-          procId: result.procId || null,
-          qrImage: qrBase64 || null
-        };
+      // ✅ Build payload for DB
+      const payload = {
+        doc_id: docId,
+        serial_number: result.serialNumber,
+        document: JSON.stringify(result.document), // keep as string
+        status: result.status,
+        batchId: result.batchId,
+        procId: result.procId,
+        qrImage: qrBase64
+      };
+	console.log("PAYLOAD",payload);
+      // ✅ Insert into DB
 
         // ✅ Insert into DB
         const insertResult = await create(payload);
