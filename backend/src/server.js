@@ -32,6 +32,7 @@ app.set('socketio',io);
   app.use('/api/stamp',stampingRoutes);
   app.use('/api/webhook', webhookRoutes);
   app.use('/api/responses',responseRoutes);
+app.use('/unsigned', express.static('/home/sirs/signadapter/sharefolder/UNSIGNED'));
 
   [STAMP_DIR, UNSIGNED_DIR, SIGNED_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) {

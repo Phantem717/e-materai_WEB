@@ -199,6 +199,8 @@ const handleSubmit = async (values) => {
                 namedipungut: "TEST"
             };
         });
+                        console.log("PAYLOADS",allPayloads);
+
 
         // ✅ Create FormData for upload
         const formData = new FormData();
@@ -235,6 +237,7 @@ const handleSubmit = async (values) => {
             console.log("File Response:", fileResp);
 
             if (fileResp.status === 200) {
+                console.log("TEST");
                 // ✅ Store ONLY small metadata - NO files!
                 sessionStorage.setItem('filesMetadata', JSON.stringify(allPayloads));
                 sessionStorage.setItem('batchId', batchId);

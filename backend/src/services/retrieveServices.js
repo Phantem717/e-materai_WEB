@@ -57,7 +57,27 @@ async function retrieveJSON(batchId){
         throw new Error(`JSON RETRIVEAL failed: ${error.response?.data?.message || error.message}`);
     }
 }
+const getDocumentsByBatch = async (batchId) => {
+  try {
+    const rows = await db.query(
+      "SELECT file_path FROM documents WHERE batchId = ?",
+      [batchId]
+    );
+
+    return rows.map(row => {
+      const filename = path.basename(row.file_path);
+
+      return {
+        filename,
+        url: `/unsigned/${filename}`   // ← This is what frontend will use
+      };
+    });
+
+  } catch (error) {
+    console.error("GET FILES Service Error:", error);
+    throw new Error(error.message);
+  }
+};
 
 
-
-module.exports = { getTypes,retrieveJSON};
+module.exports = { getTypes,retrieveJSON,getDocumentsByBatch};

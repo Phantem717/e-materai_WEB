@@ -1,4 +1,4 @@
-const { getTypes, retrieveJSON } = require('../services/retrieveServices');
+const { getTypes, retrieveJSON,getDocumentsByBatch } = require('../services/retrieveServices');
 const {create} = require('../models/responseModel');
 const {saveQR} = require('../services/saveFileService')
 const path = require('path');
@@ -133,5 +133,33 @@ const getJsonController = async (req, res) => {
     });
   }
 };
+const getFilesController = async (req,res) => {
+  try {
+    const { batchId } = req.params;
 
-module.exports = {getTypeController,getJsonController};
+    if (!batchId) {
+      return res.status(400).json({ 
+        status: 400,
+        message: "BatchId parameter is required" 
+      });
+    }
+
+    const files = await getDocumentsByBatch(batchId);
+
+    return res.status(200).json({ 
+      status: 200,
+      message: "Documents retrieved successfully",
+      data: files
+    });
+
+  } catch (error) {
+    console.error("❌ GetFILES Controller Failed:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Failed to get documents",
+      error: error.message
+    });
+  }
+};
+
+module.exports = {getTypeController,getJsonController, getFilesController};

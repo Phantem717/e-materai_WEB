@@ -5,26 +5,38 @@ import { Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import PinCard from '@/app/component/pinCard';
-
+import RetrieveAPI from '@/utils/api/retrieve';
 const { TabPane } = Tabs;
 
 const PDFViewer = () => {
   const [files, setFiles] = useState([]);
+  const [metadata,setMetadata] = useState([]);
   const [isSubmit, setIsSubmit] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    // ✅ Get all uploaded document data
+useEffect(() => {
+  const loadFiles = async () => {
+    const batchId = sessionStorage.getItem("batchId");
     const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
-    console.log("LIST",storedList);
-    if (storedList.length > 0) {
-      setFiles(storedList);
-      console.log("Loaded documentDataList:", storedList);
-    } else {
-      console.log("No documentDataList found in sessionStorage");
-      
-    }
-  }, []);
+
+    setMetadata(storedList);
+
+    if (!batchId) return;
+
+    const filesResp = await RetrieveAPI.getFiles(batchId);
+
+    const formattedFiles = filesResp.data.map((file, index) => ({
+      name: file.name,
+      data: `${process.env.NEXT_PUBLIC_BACKEND_HOST}${file.url}`, // full public file URL
+      meta: storedList[index] || {} // match metadata by index
+    }));
+
+    setFiles(formattedFiles);
+  };
+
+  loadFiles();
+}, []);
+
+
 
   const handleBack = () => {
     // ✅ Clear only document data
