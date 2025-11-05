@@ -2,7 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const STAMP_URL= process.env.STAMP_URL;
-const return_url = process.env.DISPLAY_URL
+const return_url = process.env.DISPLAY_URL;
 
 async function getTypes(header) {
     try {      
@@ -37,8 +37,7 @@ async function retrieveJSON(batchId){
             method: 'get',
             url: return_url
         });
-        // console.log("RESPONSES",response.data[0]);
-
+        console.log("RESPONSE",response.data);
         const data = response.data;
         console.log("BID",batchId); // "object"
         // console.log("All batchIds:", response.data.map(i => i.result.batchId));
