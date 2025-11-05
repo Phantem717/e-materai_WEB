@@ -143,120 +143,105 @@ const Home = () => {
             reader.readAsDataURL(file);
         });
     };
-
-    const handleSubmit = async (values) => {
-        try {
-            // Validate files
-            if (files.length === 0) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Upload Minimal 1 File",
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                });
-                return;
-            }
-
-            // Validate date
-            if (!date) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Date Required",
-                    text: "Please select a date",
-                });
-                return;
-            }
-
-            setLoading(true);
-            const token = TokenStorage.getToken();
-            const timestamp = Date.now();
-
-            // Show loading
+const handleSubmit = async (values) => {
+    try {
+        // Validate files
+        if (files.length === 0) {
             Swal.fire({
-                title: 'Processing...',
-                text: `Uploading ${files.length} file(s)...`,
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
+                icon: "warning",
+                title: "Upload Minimal 1 File",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
             });
+            return;
+        }
 
-            // Step 1: Convert files to base64 for sessionStorage (PDF viewer)
-            const fileData = await Promise.all(
-                files.map(async (file, index) => {
-                    const cleanName = file.name
-                        .replace(/\.[^/.]+$/, "")
-                        .replace(/[^a-zA-Z0-9]/g, "_")
-                        .substring(0, 30);
-
-                    const base64 = await convertToBase64(file);
-
-                    const payload = {
-                        idfile: `${timestamp}_${cleanName}_${index + 1}`,
-                        file: file.name,
-                        nodoc: index+1,
-                        namadoc: kode,
-                        tgldoc: dayjs(date).format('YYYY-MM-DD'),
-                        nilaidoc: "10000",
-                        namejidentitas: "KTP",
-                        noidentitas: "1234567890123456",
-                        namedipungut: "TEST"
-                    };
-
-                    return {
-                        name: file.name,
-                        size: file.size,
-                        data: base64,  // For PDF viewer
-                        payload: payload,
-                        meta: {
-                            date: date,
-                            tipeDokumen: tipeDokumen,
-                            kode: kode,
-                            nomorDokumen: file.name
-                        }
-                    };
-                })
-            );
-
-            const allPayloads = fileData.map(item => item.payload);
-
-            // Store in sessionStorage for PDF viewer
-            sessionStorage.setItem('documentDataList', JSON.stringify(fileData));
-            sessionStorage.setItem('filesPayload', JSON.stringify(allPayloads));
-
-            // Step 2: Create FormData for API
-            const formData = new FormData();
-
-            files.forEach((file) => {
-                formData.append('files', file);
+        // Validate date
+        if (!date) {
+            Swal.fire({
+                icon: "warning",
+                title: "Date Required",
+                text: "Please select a date",
             });
+            return;
+        }
 
-            formData.append('metadata', JSON.stringify(allPayloads));
-            formData.append('spesimenPath', '/app/sharefolder/STAMP/default.png');
-            formData.append('tipeDokumen', tipeDokumen);
-            formData.append('kode', kode);
+        setLoading(true);
+        const token = TokenStorage.getToken();
+        const timestamp = Date.now();
 
-            console.log("📤 Sending", files.length, "files to API");
+        Swal.fire({
+            title: 'Processing...',
+            text: `Uploading ${files.length} file(s)...`,
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
 
-            // Step 3: Send to API
-            const batchResponse = await StampingAPI.BatchProcess(token, formData);
+        // ✅ Build metadata only - NO base64 conversion!
+        const allPayloads = files.map((file, index) => {
+            const cleanName = file.name
+                .replace(/\.[^/.]+$/, "")
+                .replace(/[^a-zA-Z0-9]/g, "_")
+                .substring(0, 30);
 
-            console.log("=== API RESPONSE DEBUG ===");
-            console.log("Full response:", batchResponse);
-            console.log("statusCode:", batchResponse.statusCode);
-            console.log("statusCode type:", typeof batchResponse.statusCode);
+            return {
+                idfile: `${timestamp}_${cleanName}_${index + 1}`,
+                file: file.name,
+                nodoc: index + 1,
+                namadoc: kode,
+                tgldoc: dayjs(date).format('YYYY-MM-DD'),
+                nilaidoc: "10000",
+                namejidentitas: "KTP",
+                noidentitas: "1234567890123456",
+                namedipungut: "TEST"
+            };
+        });
 
-            Swal.close();
-            setLoading(false);
+        // ✅ Create FormData for upload
+        const formData = new FormData();
 
-            // ✅ Fix: Handle both number and string status codes
-            if (batchResponse.statusCode === 0 || batchResponse.statusCode === "00") {
-                sessionStorage.setItem('batchProcessResponse', JSON.stringify(batchResponse));
-                const fileResp = await RetrieveAPI.getJSON(batchResponse.result.batchId);
-                console.log("FILERESP",fileResp);
+        files.forEach((file) => {
+            formData.append('files', file);
+        });
 
-                if(fileResp.status == 200){
+        formData.append('metadata', JSON.stringify(allPayloads));
+        formData.append('spesimenPath', '/app/sharefolder/STAMP/default.png');
+        formData.append('tipeDokumen', tipeDokumen);
+        formData.append('kode', kode);
+
+        console.log("📤 Sending", files.length, "files to API");
+
+        // Send to API
+        const batchResponse = await StampingAPI.BatchProcess(token, formData);
+
+        console.log("=== API RESPONSE ===");
+        console.log("Response:", batchResponse);
+
+        Swal.close();
+        setLoading(false);
+
+        // Handle response
+        if (batchResponse.statusCode === 0 || batchResponse.statusCode === "00") {
+            const batchId = batchResponse.result?.batchId;
+            
+            if (!batchId) {
+                throw new Error('No batchId received from server');
+            }
+
+            // Fetch processed files info
+            const fileResp = await RetrieveAPI.getJSON(token, batchId);
+            console.log("File Response:", fileResp);
+
+            if (fileResp.status === 200) {
+                // ✅ Store ONLY small metadata - NO files!
+                sessionStorage.setItem('filesMetadata', JSON.stringify(allPayloads));
+                sessionStorage.setItem('batchId', batchId);
+                sessionStorage.setItem('tipeDokumen', tipeDokumen);
+                sessionStorage.setItem('kode', kode);
+
                 Swal.fire({
                     icon: "success",
                     title: "Berhasil!",
@@ -267,25 +252,26 @@ const Home = () => {
                         router.push('/login/pdfViewer');
                     }
                 });
-                }
-                
             } else {
-                throw new Error(batchResponse.message || 'Processing failed');
+                throw new Error('Failed to retrieve processed files');
             }
-
-        } catch (error) {
-            console.error("❌ Submit Error:", error);
-            Swal.close();
-            setLoading(false);
-
-            Swal.fire({
-                icon: "error",
-                title: "Gagal Process Data!",
-                text: error.message || "An error occurred",
-                confirmButtonText: "OK",
-            });
+        } else {
+            throw new Error(batchResponse.message || 'Processing failed');
         }
-    };
+
+    } catch (error) {
+        console.error("❌ Submit Error:", error);
+        Swal.close();
+        setLoading(false);
+
+        Swal.fire({
+            icon: "error",
+            title: "Gagal Process Data!",
+            text: error.message || "An error occurred",
+            confirmButtonText: "OK",
+        });
+    }
+};
 
     const formatFileSize = (bytes) => {
         if (bytes === 0) return "0 Bytes";
