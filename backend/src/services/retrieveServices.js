@@ -59,4 +59,5 @@ async function retrieveJSON(batchId){
 }
 
 
+
 module.exports = { getTypes,retrieveJSON};
