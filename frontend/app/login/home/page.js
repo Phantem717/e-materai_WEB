@@ -223,8 +223,7 @@ const Home = () => {
 
             // Store in sessionStorage for PDF viewer
             sessionStorage.setItem('documentDataList', JSON.stringify(fileData));
-            sessionStorage.setItem('filesPayload', JSON.stringify(allPayloads));
-
+            
             // Step 2: Create FormData for API
             const formData = new FormData();
 
@@ -252,7 +251,6 @@ const Home = () => {
 
             // ✅ Fix: Handle both number and string status codes
             if (batchResponse.statusCode === 0 || batchResponse.statusCode === "00") {
-                sessionStorage.setItem('batchProcessResponse', JSON.stringify(batchResponse));
                 const fileResp = await RetrieveAPI.getJSON(batchResponse.result.batchId);
                 console.log("FILERESP",fileResp);
 
