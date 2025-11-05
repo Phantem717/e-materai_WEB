@@ -2,7 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const STAMP_URL= process.env.STAMP_URL;
-const return_url = process.env.RETURN_URL
+const return_url = process.env.DISPLAY_URL
 
 async function getTypes(header) {
     try {      

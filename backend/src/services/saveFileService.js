@@ -74,25 +74,73 @@ const saveUnsigned = async (req, res) => {
 
 const saveQR = (base64Data, fileName) => {
   try {
-    // ✅ Ensure directory exists
-    if (!fs.existsSync(STAMP_DIR)) {
-      fs.mkdirSync(STAMP_DIR, { recursive: true });
-      console.log(`✅ Created directory: ${STAMP_DIR}`);
+    console.log(`📝 saveQR called for: ${fileName}`);
+    console.log(`📁 Target directory: ${STAMP_DIR}`);
+
+    // ✅ Validate input
+    if (!base64Data) {
+      throw new Error('No base64 data provided');
     }
 
-    // ✅ Clean base64 string (remove header if present)
-    const cleanedBase64 = base64Data.replace(/^data:image\/png;base64,/, "");
+    if (!fileName) {
+      throw new Error('No filename provided');
+    }
+
+    // ✅ Ensure directory exists
+    if (!fs.existsSync(STAMP_DIR)) {
+      console.log(`📁 Creating directory: ${STAMP_DIR}`);
+      fs.mkdirSync(STAMP_DIR, { recursive: true });
+    } else {
+      console.log(`✅ Directory exists: ${STAMP_DIR}`);
+    }
+
+    // ✅ Check directory permissions
+    try {
+      fs.accessSync(STAMP_DIR, fs.constants.W_OK);
+      console.log(`✅ Directory is writable`);
+    } catch (permError) {
+      throw new Error(`Directory not writable: ${STAMP_DIR}`);
+    }
+
+    // ✅ Clean base64 string (remove data:image/png;base64, header)
+    let cleanedBase64 = base64Data;
+    if (base64Data.includes(',')) {
+      cleanedBase64 = base64Data.split(',')[1];
+      console.log(`🧹 Removed base64 header`);
+    }
+
+    // ✅ Validate base64 string
+    if (!cleanedBase64 || cleanedBase64.length < 10) {
+      throw new Error('Invalid base64 data after cleaning');
+    }
 
     // ✅ Define file path
     const filePath = path.join(STAMP_DIR, `${fileName}.png`);
+    console.log(`💾 Saving to: ${filePath}`);
 
     // ✅ Write file to disk
-    fs.writeFileSync(filePath, cleanedBase64, 'base64');
-    console.log(`✅ QR saved as ${filePath}`);
+    fs.writeFileSync(filePath, cleanedBase64, { encoding: 'base64' });
 
-    return filePath;
+    // ✅ Verify file was created
+    if (fs.existsSync(filePath)) {
+      const stats = fs.statSync(filePath);
+      console.log(`✅ QR saved successfully!`);
+      console.log(`   - Path: ${filePath}`);
+      console.log(`   - Size: ${stats.size} bytes`);
+      
+      if (stats.size === 0) {
+        fs.unlinkSync(filePath); // Delete empty file
+        throw new Error('Created file is empty (0 bytes)');
+      }
+      
+      return filePath;
+    } else {
+      throw new Error('File not found after write operation');
+    }
+
   } catch (error) {
-    console.error('❌ Failed to save QR image:', error);
+    console.error('❌ saveQR failed:', error.message);
+    console.error('   Stack:', error.stack);
     throw error;
   }
 };
