@@ -36,9 +36,12 @@ router.get('/files/:filename', (req, res) => {
   if (!fs.existsSync(filePath)) {
     return res.status(404).send("File not found");
   }
-
+    res.setHeader('Access-Control-Allow-Origin', 'http://192.168.6.106:4000'); // Your frontend URL
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline"); // IMPORTANT
+  res.setHeader("Content-Disposition", "inline");
+  res.setHeader("X-Frame-Options", "ALLOWALL");
+      res.setHeader("Content-Disposition", "inline"); // IMPORTANT
 
   res.sendFile(filePath);
 });
