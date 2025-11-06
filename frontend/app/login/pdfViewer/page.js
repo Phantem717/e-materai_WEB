@@ -13,22 +13,24 @@ const PDFViewer = () => {
   const [metadata,setMetadata] = useState([]);
   const [isSubmit, setIsSubmit] = useState(false);
   const router = useRouter();
+      const tipe = sessionStorage.getItem("tipeDokumen")
+
 useEffect(() => {
   const loadFiles = async () => {
-    const batchId = sessionStorage.getItem("batchId");
+    const timestamp = sessionStorage.getItem("timestamp");
     const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
-
     setMetadata(storedList);
 
-    if (!batchId) return;
+    if (!storedList) return;
 
-    const filesResp = await RetrieveAPI.getFiles(batchId);
-
+    const filesResp = await RetrieveAPI.getFiles(timestamp);
+    console.log("FILERESP",filesResp);
     const formattedFiles = filesResp.data.map((file, index) => ({
-      name: file.name,
-      data: `${process.env.NEXT_PUBLIC_BACKEND_HOST}${file.url}`, // full public file URL
-      meta: storedList[index] || {} // match metadata by index
+      name: file.filename,
+      data: `${file.url}`, // full public file URL
+  meta: storedList.find(m => m.file === file.filename) || {}
     }));
+    console.log("FORMATTED",formattedFiles);
 
     setFiles(formattedFiles);
   };
@@ -103,7 +105,7 @@ useEffect(() => {
                   <div>
                     <strong>{file.name}</strong>
                     <p style={{ fontSize: "12px", margin: 0 }}>
-                      {file.meta?.tipeDokumen || "-"}
+                      {tipe || "-"}
                     </p>
                   </div>
                 }
@@ -112,11 +114,11 @@ useEffect(() => {
                 <div className="p-2">
                   <p>
                     <strong>Tanggal:</strong>{" "}
-                    {file.meta?.date || "Unknown"} <br />
+                    {file.meta?.tgldoc || "Unknown"} <br />
                     <strong>Tipe Dokumen:</strong>{" "}
-                    {file.meta?.tipeDokumen || "Unknown"} <br />
+                    {tipe || "Unknown"} <br />
                     <strong>Nomor Dokumen:</strong>{" "}
-                    {file.meta?.nomorDokumen || "Unknown"}
+                    {file.meta?.file.split('_')[1] || "Unknown"}
                   </p>
 
                   <div

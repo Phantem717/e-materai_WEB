@@ -11,7 +11,7 @@ const {
 const authCheck = require('../middleware/authMiddleware.js');
 
 // Define upload directory
-const UNSIGNED_DIR = path.join('/home/sirs/signadapter/sharefolder/UNSIGNED');
+const UNSIGNED_DIR = path.join(process.env.PATH_UNSIGNED);
 
 // Ensure directory exists
 if (!fs.existsSync(UNSIGNED_DIR)) {
@@ -27,6 +27,7 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         // Keep original filename or add timestamp if you want uniqueness
+        console.log("FILE",file);
         const filename = file.originalname;
         console.log('📄 Saving file as:', filename);
         cb(null, filename);

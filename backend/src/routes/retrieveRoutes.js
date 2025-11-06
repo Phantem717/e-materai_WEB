@@ -7,6 +7,7 @@ const fs = require('fs');
 // ============================================
 // ROUTES
 // ============================================
+const UNSIGNED_DIR = path.join(process.env.PATH_UNSIGNED);
 
 // ✅ GET document types - Simple GET, no files needed
 router.get('/get-type', authCheck, getTypeController);
@@ -25,6 +26,20 @@ router.get(
   getJsonController
 );
 
-router.get('/get-files/:batchId', authCheck, getFilesController);
+router.get('/get-files/:time', authCheck, getFilesController);
 
+
+router.get('/files/:filename', (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(UNSIGNED_DIR, filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send("File not found");
+  }
+
+  res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline"); // IMPORTANT
+
+  res.sendFile(filePath);
+});
 module.exports = router;

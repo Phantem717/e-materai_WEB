@@ -31,6 +31,7 @@ const Home = () => {
     const router = useRouter();
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        const timestamp = Date.now();
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -170,7 +171,6 @@ const handleSubmit = async (values) => {
 
         setLoading(true);
         const token = TokenStorage.getToken();
-        const timestamp = Date.now();
 
         Swal.fire({
             title: 'Processing...',
@@ -188,7 +188,7 @@ const handleSubmit = async (values) => {
 
             return {
                 idfile: `${timestamp}_${cleanName}_${index + 1}`,
-                file: file.name,
+                file: `${timestamp}_${file.name}`,
                 nodoc: index + 1,
                 namadoc: kode,
                 tgldoc: dayjs(date).format('YYYY-MM-DD'),
@@ -206,7 +206,8 @@ const handleSubmit = async (values) => {
 
 
         files.forEach((file) => {
-            formData.append('files', file);
+            console.log("FILES",file);
+            formData.append('files', file,`${timestamp}_${file.name}`);
         });
 
         formData.append('metadata', JSON.stringify(allPayloads));
@@ -221,7 +222,6 @@ const handleSubmit = async (values) => {
         console.log("=== API RESPONSE ===");
         console.log("Response:", batchResponse);
 
-        Swal.close();
         setLoading(false);
 
         // Handle response
@@ -240,9 +240,10 @@ const handleSubmit = async (values) => {
                 console.log("TEST");
                 // ✅ Store ONLY small metadata - NO files!
                 sessionStorage.setItem('filesMetadata', JSON.stringify(allPayloads));
-                sessionStorage.setItem('batchId', batchId);
+                sessionStorage.setItem('timestamp', timestamp);
                 sessionStorage.setItem('tipeDokumen', tipeDokumen);
                 sessionStorage.setItem('kode', kode);
+                        Swal.close();
 
                 Swal.fire({
                     icon: "success",

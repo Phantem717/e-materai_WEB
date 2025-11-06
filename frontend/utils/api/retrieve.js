@@ -82,7 +82,7 @@ const RetrieveAPI = {
             throw error;
         }
     },
-    getFiles: async (batchId)=>{
+    getFiles: async (time)=>{
           try {
             const { timestamp, signature } = generateSignature(CONS_ID, API_KEY);
             
@@ -94,14 +94,16 @@ const RetrieveAPI = {
                 'x-signature': signature,
             });
 
-            // ✅ CORRECT: Headers in 3rd parameter (config object)
-           const response = await axios.get(`${BASE_URL}/api/retrieve/get-files/${batchId}`, {
-  headers: {
+            const header = {
     'Content-Type': 'application/json',
     'x-cons-id': CONS_ID,
     'x-timestamp': timestamp,
     'x-signature': signature,
   }
+
+            // ✅ CORRECT: Headers in 3rd parameter (config object)
+           const response = await axios.get(`${BASE_URL}/api/retrieve/get-files/${time}`, {
+  headers: header
 });
 
             console.log("RETRIEVE SUCCESS:", response.status);
