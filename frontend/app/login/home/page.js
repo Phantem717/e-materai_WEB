@@ -159,8 +159,7 @@ const handleSubmit = async (values) => {
             });
             return;
         }
-
-        // Validate date
+    // Validate date
         if (!date) {
             Swal.fire({
                 icon: "warning",
@@ -204,6 +203,7 @@ const handleSubmit = async (values) => {
 
         // ✅ Create FormData for upload
         const formData = new FormData();
+
 
         files.forEach((file) => {
             console.log("FILES",file);
