@@ -36,13 +36,23 @@ router.get('/files/:filename', (req, res) => {
   if (!fs.existsSync(filePath)) {
     return res.status(404).send("File not found");
   }
-    res.setHeader('Access-Control-Allow-Origin', 'http://192.168.6.106:4000'); // Your frontend URL
+        res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="' + filename + '"');
+    
+    // ✅ Remove X-Frame-Options (allows iframe)
+    res.removeHeader('X-Frame-Options');
+    
+    // ✅ Or explicitly allow all frames
+    res.setHeader('X-Frame-Options', 'ALLOWALL');
+    
+    // ✅ CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", "inline");
-  res.setHeader("X-Frame-Options", "ALLOWALL");
-      res.setHeader("Content-Disposition", "inline"); // IMPORTANT
-
+    
+    // ✅ Content Security Policy (allow embedding)
+    res.setHeader('Content-Security-Policy', "frame-ancestors *");
   res.sendFile(filePath);
 });
 module.exports = router;

@@ -126,7 +126,7 @@ useEffect(() => {
                     style={{ height: "calc(100vh - 400px)" }}
                   >
                     <iframe
-                      src={file.data}
+                      src={encodeURI(file.data)}
                       className="w-full h-full border-0"
                       title={file.name}
                     />
