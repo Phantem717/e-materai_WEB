@@ -1,5 +1,6 @@
 const axios = require('axios');
 require('dotenv').config();
+const db = require('../config/db');
 
 const STAMP_URL= process.env.STAMP_URL;
 const return_url = process.env.DISPLAY_URL;
