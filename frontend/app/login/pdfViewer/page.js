@@ -6,42 +6,115 @@ import { ArrowBack } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import PinCard from '@/app/component/pinCard';
 import RetrieveAPI from '@/utils/api/retrieve';
+import { TokenStorage } from '@/utils/tokenStorage';
+
 const { TabPane } = Tabs;
 
 const PDFViewer = () => {
   const [files, setFiles] = useState([]);
-  const [metadata,setMetadata] = useState([]);
+  const [metadata, setMetadata] = useState([]);
+  const [pdfUrls, setPdfUrls] = useState({});
+  const [loading, setLoading] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
+  const [tipe,setTipe] = useState("");
   const router = useRouter();
-  const [tipe,setTipe]= useState("");
-useEffect(() => {
-  const loadFiles = async () => {
-    const timestamp = sessionStorage.getItem("timestamp");
-    const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
-    setMetadata(storedList);
-      const tipe = sessionStorage.getItem("tipeDokumen")
+
+  useEffect(() => {
+      const tipe = sessionStorage.getItem("tipeDokumen");
       setTipe(tipe);
-    if (!storedList) return;
+    const loadFiles = async () => {
+      try {
+        const timestamp = sessionStorage.getItem("timestamp");
+        const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
+        setMetadata(storedList);
 
-    const filesResp = await RetrieveAPI.getFiles(timestamp);
-    console.log("FILERESP",filesResp);
-    const formattedFiles = filesResp.data.map((file, index) => ({
-      name: file.filename,
-      data: `${file.url}`, // full public file URL
-  meta: storedList.find(m => m.file === file.filename) || {}
-    }));
-    console.log("FORMATTED",formattedFiles);
+        if (!storedList || storedList.length === 0) return;
 
-    setFiles(formattedFiles);
+        const filesResp = await RetrieveAPI.getFiles(timestamp);
+        console.log("FILERESP", filesResp);
+
+        const formattedFiles = filesResp.data.map((file, index) => ({
+          name: file.filename,
+          apiUrl: file.url,
+          meta: storedList.find(m => m.file === file.filename) || {}
+        }));
+
+        console.log("FORMATTED", formattedFiles);
+        setFiles(formattedFiles);
+
+        // Load first PDF immediately
+        if (formattedFiles.length > 0) {
+          loadPDF(formattedFiles[0], 0);
+        }
+      } catch (error) {
+        console.error("Error loading files:", error);
+      }
+    };
+
+    loadFiles();
+  }, []);
+
+  // ✅ Load PDF as blob and create object URL
+  const loadPDF = async (file, index) => {
+    if (pdfUrls[index]) return; // Already loaded
+
+    setLoading(prev => ({ ...prev, [index]: true }));
+
+    try {
+
+      // Fetch PDF with authentication
+const response = await fetch(file.apiUrl, {
+  credentials: "include"   // ✅ VERY IMPORTANT
+});
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Get blob and create object URL
+      const blob = await response.blob();
+      console.log(`PDF blob size: ${blob.size} bytes, type: ${blob.type}`);
+
+      // Verify it's actually a PDF
+      if (!blob.type.includes('pdf') && blob.type !== 'application/octet-stream') {
+        console.warn(`Warning: Expected PDF but got ${blob.type}`);
+      }
+
+      const objectUrl = URL.createObjectURL(blob);
+      
+      setPdfUrls(prev => ({
+        ...prev,
+        [index]: objectUrl
+      }));
+
+      console.log(`✅ PDF ${index} loaded successfully`);
+
+    } catch (error) {
+      console.error(`❌ Error loading PDF ${index}:`, error);
+      alert(`Failed to load PDF: ${error.message}`);
+    } finally {
+      setLoading(prev => ({ ...prev, [index]: false }));
+    }
   };
 
-  loadFiles();
-}, []);
+  // Load PDF when tab changes
+  const handleTabChange = (activeKey) => {
+    const index = parseInt(activeKey);
+    if (files[index] && !pdfUrls[index] && !loading[index]) {
+      loadPDF(files[index], index);
+    }
+  };
 
-
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(pdfUrls).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [pdfUrls]);
 
   const handleBack = () => {
-    // ✅ Clear only document data
     sessionStorage.removeItem("filesMetadata");
     router.push("/login/home");
   };
@@ -57,7 +130,7 @@ useEffect(() => {
         style={{ background: "#f0f0f0" }}
       >
         <div className="text-center">
-          <p className="text-xl mb-4">No PDF files to display</p>
+          <p className="text-xl mb-4">Loading documents...</p>
           <Button
             variant="contained"
             onClick={handleBack}
@@ -98,7 +171,12 @@ useEffect(() => {
 
         {/* PDF Viewer Tabs */}
         <div className="bg-white rounded-lg shadow-md p-4">
-          <Tabs defaultActiveKey="0" type="card" size="large">
+          <Tabs 
+            defaultActiveKey="0" 
+            type="card" 
+            size="large"
+            onChange={handleTabChange}
+          >
             {files.map((file, index) => (
               <TabPane
                 tab={
@@ -118,18 +196,36 @@ useEffect(() => {
                     <strong>Tipe Dokumen:</strong>{" "}
                     {tipe || "Unknown"} <br />
                     <strong>Nomor Dokumen:</strong>{" "}
-                    {file.meta?.file.split('_')[1] || "Unknown"}
+                    {file.meta?.file?.split('_')[1] || "Unknown"}
                   </p>
 
                   <div
-                    className="w-full mt-2"
+                    className="w-full mt-2 bg-gray-100 rounded flex items-center justify-center"
                     style={{ height: "calc(100vh - 400px)" }}
                   >
-                    <iframe
-                      src={encodeURI(file.data)}
-                      className="w-full h-full border-0"
-                      title={file.name}
-                    />
+                    {loading[index] ? (
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading PDF...</p>
+                      </div>
+                    ) : pdfUrls[index] ? (
+                      <iframe
+                        src={pdfUrls[index]}
+                        className="w-full h-full border-0"
+                        title={file.name}
+                        style={{ backgroundColor: 'white' }}
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <p className="text-gray-600 mb-4">PDF not loaded</p>
+                        <Button
+                          variant="contained"
+                          onClick={() => loadPDF(file, index)}
+                        >
+                          Load PDF
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </TabPane>

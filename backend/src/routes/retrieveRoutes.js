@@ -4,6 +4,8 @@ const authCheck = require('../middleware/authMiddleware.js');
 const { getTypeController, getJsonController,getFilesController } = require('../controllers/retrieveController');
 const path = require('path');
 const fs = require('fs');
+require('dotenv').config();
+
 // ============================================
 // ROUTES
 // ============================================
@@ -27,7 +29,7 @@ router.get(
 );
 
 router.get('/get-files/:time', authCheck, getFilesController);
-
+const allowedOrigin = process.env.PDF_URL;
 
 router.get('/files/:filename', (req, res) => {
   const { filename } = req.params;
@@ -36,23 +38,24 @@ router.get('/files/:filename', (req, res) => {
   if (!fs.existsSync(filePath)) {
     return res.status(404).send("File not found");
   }
-        res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename="' + filename + '"');
-    
-    // ✅ Remove X-Frame-Options (allows iframe)
-    res.removeHeader('X-Frame-Options');
-    
-    // ✅ Or explicitly allow all frames
-    res.setHeader('X-Frame-Options', 'ALLOWALL');
-    
-    // ✅ CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    
-    // ✅ Content Security Policy (allow embedding)
-    res.setHeader('Content-Security-Policy', "frame-ancestors *");
-  res.sendFile(filePath);
+
+  // ✅ Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin); 
+  res.setHeader('Access-Control-Allow-Credentials', 'true'); 
+  res.setHeader('Access-Control-Allow-Methods', 'GET'); 
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+
+  // ✅ PDF headers
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error("Error sending PDF:", err);
+      res.status(500).send("Failed to send file");
+    }
+  });
 });
+
+
 module.exports = router;
