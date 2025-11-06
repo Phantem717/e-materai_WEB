@@ -33,7 +33,7 @@ const getJsonController = async (req, res) => {
 
     // 🔹 Retrieve JSON data from service
     const response = await retrieveJSON(batchId);
-    console.log("RESPOSNE",response);
+    // console.log("RESPOSNE",response);
     // 🔹 Validate response
    // if (!Array.isArray(response) || response.length === 0) {
      // return res.status(400).json({ message: "No valid data found in response" });
@@ -65,7 +65,7 @@ const getJsonController = async (req, res) => {
         procId: result.procId,
         qrImage: qrBase64
       };
-	console.log("PAYLOAD",payload);
+	// console.log("PAYLOAD",payload);
       // ✅ Insert into DB
 
         // ✅ Insert into DB
@@ -135,16 +135,16 @@ const getJsonController = async (req, res) => {
 };
 const getFilesController = async (req,res) => {
   try {
-    const { batchId } = req.params;
-
-    if (!batchId) {
+    const {time}  = req.params;
+    console.log("GET FILES",time)
+    if (!time) {
       return res.status(400).json({ 
         status: 400,
-        message: "BatchId parameter is required" 
+        message: "Payload parameter is required" 
       });
     }
 
-    const files = await getDocumentsByBatch(batchId);
+    const files = await getDocumentsByBatch(time);
 
     return res.status(200).json({ 
       status: 200,

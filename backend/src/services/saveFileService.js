@@ -2,8 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const UNSIGNED_DIR = path.join('/home/sirs/signadapter/sharefolder/UNSIGNED');
-const STAMP_DIR = path.join('/home/sirs/signadapter/sharefolder/STAMP')
+const UNSIGNED_DIR = path.join(process.env.PATH_UNSIGNED);
+const STAMP_DIR = path.join(process.env.PATH_STAMP)
 
 const saveUnsigned = async (req, res) => {
   try {
