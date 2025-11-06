@@ -13,14 +13,14 @@ const PDFViewer = () => {
   const [metadata,setMetadata] = useState([]);
   const [isSubmit, setIsSubmit] = useState(false);
   const router = useRouter();
-      const tipe = sessionStorage.getItem("tipeDokumen")
-
+  const [tipe,setTipe]= useState("");
 useEffect(() => {
   const loadFiles = async () => {
     const timestamp = sessionStorage.getItem("timestamp");
     const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
     setMetadata(storedList);
-
+      const tipe = sessionStorage.getItem("tipeDokumen")
+      setTipe(tipe);
     if (!storedList) return;
 
     const filesResp = await RetrieveAPI.getFiles(timestamp);
