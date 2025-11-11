@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation';
 import PinCard from '@/app/component/pinCard';
 import RetrieveAPI from '@/utils/api/retrieve';
 import { TokenStorage } from '@/utils/tokenStorage';
-
+import StampingAPI from '@/utils/api/stamping';
 const { TabPane } = Tabs;
-
+import Swal from 'sweetalert2';
 const PDFViewer = () => {
   const [files, setFiles] = useState([]);
   const [metadata, setMetadata] = useState([]);
@@ -121,6 +121,42 @@ const response = await fetch(file.apiUrl, {
 
   const handleSubmit = () => {
     setIsSubmit(true);
+    const token = TokenStorage.getToken();
+   files.forEach(async (file, index) => {
+      try {
+        console.log("FILES",file);
+        const response = await StampingAPI.stamping(token,  {fileName: file.name.split(".")[0]});
+        console.log("RESPONSE",response)
+        if(response.statusCode == 1){
+         Swal.fire({
+            icon: "error",
+            title: "Gagal Process Data!",
+            text: error.message || "An error occurred",
+            confirmButtonText: "OK",
+        });
+        }
+        else{
+            await Swal.fire({
+                              icon: "success",
+                              title: "Stamping Berhasil",
+                              showConfirmButton: true,
+                              timerProgressBar: true,
+                              allowOutsideClick: false,
+          
+                          })
+        }
+      }
+      catch(error){
+        console.log("ERROR",error,message);
+      Swal.fire({
+            icon: "error",
+            title: "Gagal Process Data!",
+            text: error.message || "Gagal Stamping",
+            confirmButtonText: "OK",
+        });
+        setIsSubmit(false)
+      }
+    })
   };
 
   if (files.length === 0) {
@@ -246,7 +282,6 @@ const response = await fetch(file.apiUrl, {
       </div>
 
       {/* PIN Modal */}
-      <PinCard isSubmit={isSubmit} setIsSubmit={setIsSubmit} />
     </Layout>
   );
 };

@@ -50,18 +50,18 @@ async function stamping(payload,header){
                 location: "JAKARTA",
                 profileName: "emeteraicertificateSigner",
                 reason: "Akta Pejabat",
-                refToken: payload.serial,
-                spesimenPath: payload.qr,
+                refToken: payload.refToken,
+                spesimenPath: payload.spesimenPath,
                 src: payload.src,
-                visLLX: 237,
-                visLLY: 559,
-                visURX: 337,
-                visURY: 459,
+                visLLX: 291,
+                visLLY: 410,
+                visURX: 357,
+                visURY: 476,
                 visSignaturePage: 1
             },
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': headers
+                'Authorization': header
             }
         });
          console.log("RESPONSE BATCH",response.data);
