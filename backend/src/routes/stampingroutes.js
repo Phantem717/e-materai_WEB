@@ -6,7 +6,7 @@ const fs = require('fs');
 const router = express.Router();
 
 const {
-    BatchProcessController
+    BatchProcessController, stampingController
 } = require('../controllers/stampingController');
 const authCheck = require('../middleware/authMiddleware.js');
 
@@ -75,5 +75,7 @@ router.post('/batch-process',
     },
     BatchProcessController          // 4. Handle the request
 );
+
+router.post('/stamping', authCheck, stampingController);
 
 module.exports = router;

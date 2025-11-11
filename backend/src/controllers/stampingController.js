@@ -1,8 +1,12 @@
 // controllers/batch.controller.js
-const { batchProcessing } = require('../services/stampingService');
+const { batchProcessing,stamping } = require('../services/stampingService');
+const {getStamp,getDocumentByName} = require('../services/retrieveServices');
+const responsesModel = require('../models/responseModel')
+const path = require('path');
+const fs = require('fs');
+const SIGNED_DIR = process.env.PATH_SIGNED;
 
 const BatchProcessController = async (req, res) => {
-
      // Execute multer upload
     try {
         console.log("=== BATCH CONTROLLER ===");
@@ -67,4 +71,46 @@ const BatchProcessController = async (req, res) => {
     }
 };
 
-module.exports = { BatchProcessController };
+const stampingController = async (req,res) => {
+      try {
+        console.log("=== BATCH CONTROLLER ===");
+        console.log("Body:", req.body);
+        const {fileName} = req.body
+        const headers = req.headers["authorization"];
+        const filePath = path.join("STAMPED_",SIGNED_DIR, `_${fileName}.pdf`);
+        console.log("FILEAPTH",filePath);
+        
+        const [file,stamp,serial_number] = await Promise.all([
+            await getDocumentByName(fileName),
+            await getStamp(fileName),
+            await responsesModel.findSerialNumberByDocId(fileName)
+        ]);
+        console.log("FILE",file, serial_number);
+        const payload = {
+            src: file,
+            spesimenPath: stamp,
+            token : headers,
+            dest: filePath,
+            refToken: serial_number[0]?.serial_number
+        }
+        
+        const data = await stamping(payload, headers);
+        
+        return res.status(200).json({
+            statusCode: 0,
+            message: 'Stamping processing successful',
+            totalProcessed: payload.length,
+            ...data
+        });
+
+    } catch (error) {
+        console.error("Batch Processing Failed:", error);
+        res.status(500).json({ 
+            statusCode: 1,
+            message: 'Failed to process batch', 
+            error: error.message 
+        });
+    }
+}
+
+module.exports = { BatchProcessController,stampingController };

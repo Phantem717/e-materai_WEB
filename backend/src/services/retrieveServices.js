@@ -7,7 +7,7 @@ const fs = require('fs');
 const STAMP_URL= process.env.STAMP_URL;
 const return_url = process.env.DISPLAY_URL;
 const UNSIGNED_DIR = path.join(process.env.PATH_UNSIGNED);
-
+const STAMP_DIR = path.join(process.env.PATH_STAMP)
 
 async function getTypes(header) {
     try {      
@@ -95,5 +95,94 @@ const getDocumentsByBatch = async (title,type) => {
     }
 };
 
+const getDocumentByName = async (title) => {
+     try {
+    if (!fs.existsSync(UNSIGNED_DIR)) {
+      console.warn("UNSIGNED_DIR does not exist:", UNSIGNED_DIR);
+      return null;
+    }
 
-module.exports = { getTypes,retrieveJSON,getDocumentsByBatch};
+    const allfiles = fs.readdirSync(UNSIGNED_DIR);
+    console.log("🔍 Total files in UNSINGED_DIR:", allfiles.length);
+
+    const cleanTitle = title.trim().toLowerCase();
+
+    // Replace dashes with underscores for comparison flexibility
+    const normalizedTitle = cleanTitle.replace(/[-]/g, "_");
+
+    // Find the closest matching file
+    const matchingFiles = allfiles.filter((file) => {
+      const normalizedFile = file.toLowerCase().replace(/[-]/g, "_");
+      return normalizedFile.includes(normalizedTitle) && file.endsWith(".pdf");
+    });
+
+    if (matchingFiles.length === 0) {
+      console.warn(`⚠️ No matching .png found for prefix "${title}"`);
+      return null;
+    }
+
+    // If multiple, return the most recently modified one
+    const chosen =
+      matchingFiles.length > 1
+        ? matchingFiles.sort((a, b) => {
+            const aTime = fs.statSync(path.join(UNSIGNED_DIR, a)).mtime;
+            const bTime = fs.statSync(path.join(UNSIGNED_DIR, b)).mtime;
+            return bTime - aTime;
+          })[0]
+        : matchingFiles[0];
+
+    console.log("✅ Found match:", chosen);
+    return path.join(UNSIGNED_DIR, chosen);
+
+  } catch (error) {
+    console.error("❌ Error in getStamp:", error);
+    return null;
+  }
+}
+const getStamp = async (title) => {
+  try {
+    if (!fs.existsSync(STAMP_DIR)) {
+      console.warn("STAMP_DIR does not exist:", STAMP_DIR);
+      return null;
+    }
+
+    const allQR = fs.readdirSync(STAMP_DIR);
+    console.log("🔍 Total files in STAMP_DIR:", allQR.length);
+
+    const cleanTitle = title.trim().toLowerCase();
+
+    // Replace dashes with underscores for comparison flexibility
+    const normalizedTitle = cleanTitle.replace(/[-]/g, "_");
+
+    // Find the closest matching file
+    const matchingFiles = allQR.filter((qr) => {
+      const normalizedFile = qr.toLowerCase().replace(/[-]/g, "_");
+      return normalizedFile.includes(normalizedTitle) && qr.endsWith(".png");
+    });
+
+    if (matchingFiles.length === 0) {
+      console.warn(`⚠️ No matching .png found for prefix "${title}"`);
+      return null;
+    }
+
+    // If multiple, return the most recently modified one
+    const chosen =
+      matchingFiles.length > 1
+        ? matchingFiles.sort((a, b) => {
+            const aTime = fs.statSync(path.join(STAMP_DIR, a)).mtime;
+            const bTime = fs.statSync(path.join(STAMP_DIR, b)).mtime;
+            return bTime - aTime;
+          })[0]
+        : matchingFiles[0];
+
+    console.log("✅ Found match:", chosen);
+    return path.join(STAMP_DIR, chosen);
+
+  } catch (error) {
+    console.error("❌ Error in getStamp:", error);
+    return null;
+  }
+};
+
+
+module.exports = { getTypes,retrieveJSON,getDocumentsByBatch,getStamp,getDocumentByName};
