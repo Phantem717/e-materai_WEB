@@ -182,9 +182,7 @@ const handleSubmit = async (values) => {
         // ✅ Build metadata only - NO base64 conversion!
         const allPayloads = files.map((file, index) => {
             const cleanName = file.name
-                .replace(/\.[^/.]+$/, "")
-                .replace(/[^a-zA-Z0-9]/g, "_")
-                .substring(0, 30);
+               
 
             return {
                 idfile: `${timestamp}_${cleanName}_${index + 1}`,
