@@ -24,13 +24,13 @@ services:
       - DB_NAME=ematerai_db
       - RETURN_URL=https://antrean.rscarolus.or.id/api/ematerai
       - DISPLAY_URL=https://antrean.rscarolus.or.id/data/data.json
-      - PATH_UNSIGNED=/home/sirs/signadapter/sharefolder/UNSIGNED
-      - PATH_STAMP=/home/sirs/signadapter/sharefolder/STAMP
-      - PATH_SIGNED=/home/sirs/signadapter/sharefolder/SIGNED
+      - PATH_UNSIGNED=/home/sirs/e-materai/sharefolder/UNSIGNED
+      - PATH_STAMP=/home/sirs/e-materai/sharefolder/STAMP
+      - PATH_SIGNED=/home/sirs/e-materai/sharefolder/SIGNED
       - BASE_URL=http://192.168.6.87:5000
       - PDF_URL=http://192.168.6.87:3000
     volumes:
-      - /home/sirs/signadapter/sharefolder:/home/sirs/signadapter/sharefolder
+      - /home/sirs/e-materai/sharefolder:/home/sirs/e-materai/sharefolder
     depends_on:
       db:
         condition: service_healthy
