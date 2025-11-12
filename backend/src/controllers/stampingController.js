@@ -77,7 +77,7 @@ const stampingController = async (req,res) => {
         console.log("Body:", req.body);
         const {fileName} = req.body
         const headers = req.headers["authorization"];
-        const filePath = path.join("STAMPED_",SIGNED_DIR, `_${fileName}.pdf`);
+        const filePath = path.join(SIGNED_DIR, `_${fileName}.pdf`);
         console.log("FILEAPTH",filePath);
         
         const [file,stamp,serial_number] = await Promise.all([
