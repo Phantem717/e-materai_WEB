@@ -14,4 +14,4 @@ COPY . .
 RUN npm run build
 
 # Jalankan aplikasi dengan opsi IP fleksibel
-CMD ["npx", "next", "start", "-p", "4000", "-H", "0.0.0.0"]
+CMD ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
