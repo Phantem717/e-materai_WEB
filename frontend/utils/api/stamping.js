@@ -74,7 +74,43 @@ const StampingAPI = {
                 message: error.response?.data?.message || error.message
             };
         }
-    }
+    },
+  stamping: async (token, payload) => {
+  try {
+    const { timestamp, signature } = generateSignature(CONS_ID, API_KEY);
+
+    const headers = {
+      'Content-Type': 'application/json', // ✅ JSON, not multipart
+      'x-cons-id': CONS_ID,
+      'x-timestamp': timestamp,
+      'x-signature': signature,
+      'Authorization': `Bearer ${token}`
+    };
+
+    console.log("Request headers:", headers);
+    console.log("Payload:", payload);
+
+    // ✅ Send JSON directly
+    const response = await axios.post(
+      `${BASE_URL}/api/stamp/stamping`,
+      payload,
+      { headers }
+    );
+
+    console.log("BATCH PROCESS SUCCESS:", response.status);
+    return response.data;
+
+  } catch (error) {
+    console.error("=== BATCH PROCESS ERROR ===");
+    console.error("Error message:", error.message);
+    console.error("Response data:", error.response?.data);
+    return {
+      statusCode: 1,
+      message: error.response?.data?.message || error.message
+    };
+  }
+}
+
 };
 
 export default StampingAPI;
