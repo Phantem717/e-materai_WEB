@@ -58,7 +58,8 @@ async function stamping(payload,header){
                 visLLY: 410,
                 visURX: 357,
                 visURY: 476,
-                visSignaturePage: 1
+                visSignaturePage: 1,
+                retryFlag: 0
             },
             headers: {
                 'Content-Type': 'application/json',
