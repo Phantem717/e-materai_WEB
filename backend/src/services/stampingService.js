@@ -38,12 +38,11 @@ async function batchProcessing(payload,headers) {
 
 async function stamping(payload,header){
      try {      
-        console.log("PAYLOAD_SERVICE",payload,return_url);
-        const payload = {
+        const data = {
             certificatelevel: "NOT_CERTIFIED",
                 dest: payload.dest,
                 docpass: "",
-                jwToken: payload.header,
+                jwToken: payload.token,
                 location: "JAKARTA",
                 profileName: "emeteraicertificateSigner",
                 reason: "Akta Pejabat",
@@ -57,10 +56,11 @@ async function stamping(payload,header){
                 visSignaturePage: 1,
                 retryFlag: 0
         }
+        console.log("PAYLOAD_SERVICE",data,return_url);
         const response = await axios({
             method: 'post',
             url: `${stamp_url}/adapter/pdfsigning/rest/docSigningZ`,
-            payload,
+            data,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': header
