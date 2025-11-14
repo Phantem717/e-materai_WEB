@@ -124,7 +124,7 @@ const response = await fetch(file.apiUrl, {
    files.forEach(async (file, index) => {
       try {
         console.log("FILES",file);
-        const response = await StampingAPI.stamping(token,  {fileName: file.name.split(".")[0]});
+        const response = await StampingAPI.stamping(token,  {fileName: file.name.split(".")[0], tipeDokumen: tipe});
         console.log("RESPONSE",response)
         if(response.statusCode == 1){
          Swal.fire({

@@ -75,7 +75,7 @@ const stampingController = async (req,res) => {
       try {
         console.log("=== BATCH CONTROLLER ===");
         console.log("Body:", req.body);
-        const {fileName} = req.body
+        const {fileName,tipeDokumen} = req.body
         const headers = req.headers["authorization"];
         const filePath = path.join(SIGNED_DIR, `_${fileName}.pdf`);
         console.log("FILEAPTH",filePath);
@@ -91,6 +91,7 @@ const stampingController = async (req,res) => {
             spesimenPath: stamp,
             token : headers.split(" ")[1],
             dest: filePath,
+            type: tipeDokumen,
             refToken: serial_number[0]?.serial_number
         }
         
