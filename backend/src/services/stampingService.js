@@ -45,7 +45,7 @@ async function stamping(payload,header){
                 jwToken: payload.token,
                 location: "JAKARTA",
                 profileName: "emeteraicertificateSigner",
-                reason: "Akta Pejabat",
+                reason: payload.type,
                 refToken: payload.refToken,
                 spesimenPath: payload.spesimenPath,
                 src: payload.src,
