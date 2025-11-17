@@ -62,9 +62,9 @@ async function retrieveJSON(batchId){
         throw new Error(`JSON RETRIVEAL failed: ${error.response?.data?.message || error.message}`);
     }
 }
-const getDocumentsByBatch = async (title,type, folder) => {
+const getDocumentsByBatch = async (title,type) => {
    try {
-        if (!fs.existsSync(UNSIGNED_DIR) || !fs.existsSync(SIGNED_DIR) ) {
+        if (!fs.existsSync(UNSIGNED_DIR)) {
             return [];
         }
         
@@ -76,7 +76,7 @@ const getDocumentsByBatch = async (title,type, folder) => {
             return file.endsWith('.pdf') && file.startsWith(title);
         });
 
-        console.log(`Files starting with "${title}":`, matchingFiles.length);
+        console.log(`Files starting with 1 "${title}":`, matchingFiles.length);
 
         return matchingFiles.map(filename => {
             const filePath = path.join(UNSIGNED_DIR, filename);
@@ -155,7 +155,7 @@ const getStampedBatch = async (title) => {
             return file.endsWith('.pdf') && file.startsWith(`FINAL_${title}`);
         });
 
-        console.log(`Files starting with "${title}":`, matchingFiles.length);
+        console.log(`Files starting with 2 "${title}":`, matchingFiles.length);
 
         return matchingFiles.map(filename => {
             const filePath = path.join(SIGNED_DIR, filename);
