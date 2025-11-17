@@ -24,7 +24,7 @@ const PDFViewer = () => {
         const timestamp = sessionStorage.getItem("timestamp");
         const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
         setMetadata(storedList);
-
+        console.log("STORED",storedList);
         if (!storedList || storedList.length === 0) return;
         let filesResp;
         if(isStamped.current == false){

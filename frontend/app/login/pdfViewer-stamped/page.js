@@ -20,12 +20,14 @@ const PDFViewer = () => {
 
   useEffect(() => {
       const tipe = sessionStorage.getItem("tipeDokumen");
+
       setTipe(tipe);
     const loadFiles = async () => {
       try {
         const timestamp = sessionStorage.getItem("timestamp");
         const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
         setMetadata(storedList);
+        console.log("STORED",storedList);
 
         if (!storedList || storedList.length === 0) return;
 
