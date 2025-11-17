@@ -135,7 +135,7 @@ const getJsonController = async (req, res) => {
 };
 const getFilesController = async (req,res) => {
   try {
-    const {time}  = req.params;
+    const {time,folder}  = req.params;
     console.log("GET FILES",time)
     if (!time) {
       return res.status(400).json({ 
@@ -144,7 +144,7 @@ const getFilesController = async (req,res) => {
       });
     }
 
-    const files = await getDocumentsByBatch(time);
+    const files = await getDocumentsByBatch(time,"-",folder);
 
     return res.status(200).json({ 
       status: 200,

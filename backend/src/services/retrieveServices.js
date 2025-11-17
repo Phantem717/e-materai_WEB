@@ -62,13 +62,22 @@ async function retrieveJSON(batchId){
         throw new Error(`JSON RETRIVEAL failed: ${error.response?.data?.message || error.message}`);
     }
 }
-const getDocumentsByBatch = async (title,type) => {
+const getDocumentsByBatch = async (title,type, folder) => {
    try {
-        if (!fs.existsSync(UNSIGNED_DIR)) {
+        if (!fs.existsSync(UNSIGNED_DIR) || !fs.existsSync(SIGNED_DIR) ) {
             return [];
         }
-
-        const allFiles = fs.readdirSync(UNSIGNED_DIR);
+        let allFiles;
+        let dir;
+        
+        if(folder == "signed"){
+            allFiles = fs.readdirSync(SIGNED_DIR);
+            dir=SIGNED_DIR;
+        }
+        else{
+        allFiles = fs.readdirSync(UNSIGNED_DIR);
+          dir=UNSIGNED_DIR;
+        }
         console.log("FILES",allFiles);
         const matchingFiles = allFiles.filter(file => {
             return file.endsWith('.pdf') && file.startsWith(title);
@@ -77,7 +86,7 @@ const getDocumentsByBatch = async (title,type) => {
         console.log(`Files starting with "${title}":`, matchingFiles.length);
 
         return matchingFiles.map(filename => {
-            const filePath = path.join(UNSIGNED_DIR, filename);
+            const filePath = path.join(dir, filename);
             const stats = fs.statSync(filePath);
 
             return {
@@ -94,6 +103,7 @@ const getDocumentsByBatch = async (title,type) => {
         return [];
     }
 };
+
 
 const getDocumentByName = async (title) => {
      try {

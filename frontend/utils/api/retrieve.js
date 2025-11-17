@@ -82,7 +82,7 @@ const RetrieveAPI = {
             throw error;
         }
     },
-    getFiles: async (time)=>{
+    getFiles: async (time,folder)=>{
           try {
             const { timestamp, signature } = generateSignature(CONS_ID, API_KEY);
             
@@ -102,7 +102,7 @@ const RetrieveAPI = {
   }
 
             // ✅ CORRECT: Headers in 3rd parameter (config object)
-           const response = await axios.get(`${BASE_URL}/api/retrieve/get-files/${time}`, {
+           const response = await axios.get(`${BASE_URL}/api/retrieve/get-files/${time}/${folder}`, {
   headers: header
 });
 
