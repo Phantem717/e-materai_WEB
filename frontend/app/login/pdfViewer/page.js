@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Tabs } from 'antd';
 import { Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
@@ -17,23 +17,19 @@ const PDFViewer = () => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [tipe,setTipe] = useState("");
   const router = useRouter();
-  const isStamped = useRef(false);
 
-     const loadFiles = async () => {
+  useEffect(() => {
+      const tipe = sessionStorage.getItem("tipeDokumen");
+      setTipe(tipe);
+    const loadFiles = async () => {
       try {
         const timestamp = sessionStorage.getItem("timestamp");
         const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
         setMetadata(storedList);
 
         if (!storedList || storedList.length === 0) return;
-        let filesResp;
-        if(isStamped.current == false){
-        filesResp = await RetrieveAPI.getFiles(timestamp,"unsigned");
 
-        }
-        else{
-          filesResp = await RetrieveAPI.getFiles(timestamp,"signed");
-        }
+        const filesResp = await RetrieveAPI.getFiles(timestamp);
         console.log("FILERESP", filesResp);
 
         const formattedFiles = filesResp.data.map((file, index) => ({
@@ -54,9 +50,6 @@ const PDFViewer = () => {
       }
     };
 
-  useEffect(() => {
-      const tipe = sessionStorage.getItem("tipeDokumen");
-      setTipe(tipe);
     loadFiles();
   }, []);
 
@@ -133,36 +126,28 @@ const response = await fetch(file.apiUrl, {
         console.log("FILES",file);
         const response = await StampingAPI.stamping(token,  {fileName: file.name.split(".")[0], tipeDokumen: tipe});
         console.log("RESPONSE",response)
-       if (response.statusCode !== 1) {
-  await Swal.fire({
-    icon: "success",
-    title: "Stamping Berhasil",
-    showConfirmButton: true,
-    timerProgressBar: true,
-    allowOutsideClick: false,
-  });
-
-  // 🔥 1. Mark as stamped
-  isStamped.current = true;
-
-  // 🔥 2. Clear previous blob URLs so new PDFs load
-  setPdfUrls({});
-
-  // 🔥 3. Reload file list (new stamped files)
-  await loadFiles();
-
-  return;
-}
-else{
-
-  await Swal.fire({
+        if(response.statusCode == 1){
+         Swal.fire({
             icon: "error",
             title: "Gagal Process Data!",
-            text: response.message || "Gagal Stamping",
+            text: error.message || "An error occurred",
             confirmButtonText: "OK",
         });
-        setIsSubmit(false)
-}
+        }
+        else{
+            await Swal.fire({
+                              icon: "success",
+                              title: "Stamping Berhasil",
+                              showConfirmButton: true,
+                              timerProgressBar: true,
+                              allowOutsideClick: false,
+          
+                          }).then((result)=>{
+                            if(result.isConfirmed){
+                              router.push("/login/pdfViewer-stamped");
+                            }
+                          })
+        }
       }
       catch(error){
         console.log("ERROR",error,message);
