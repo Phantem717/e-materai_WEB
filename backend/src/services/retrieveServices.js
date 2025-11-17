@@ -159,7 +159,7 @@ const getStampedBatch = async (title) => {
         const allFiles = fs.readdirSync(SIGNED_DIR);
         console.log("FILES",allFiles);
         const matchingFiles = allFiles.filter(file => {
-            return file.endsWith('.pdf') && file.startsWith(title);
+            return file.endsWith('.pdf') && file.startsWith(`FINAL_${title}`);
         });
 
         console.log(`Files starting with "${title}":`, matchingFiles.length);
