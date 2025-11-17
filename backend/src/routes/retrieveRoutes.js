@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authCheck = require('../middleware/authMiddleware.js');
-const { getTypeController, getJsonController,getFilesController,getFilesControllerSigned } = require('../controllers/retrieveController');
+const { getTypeController, getJsonController,getFilesController } = require('../controllers/retrieveController');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
@@ -10,8 +10,7 @@ require('dotenv').config();
 // ROUTES
 // ============================================
 const UNSIGNED_DIR = path.join(process.env.PATH_UNSIGNED);
-const STAMP_DIR = path.join(process.env.PATH_STAMP);
-const SIGNED_DIR = path.join(process.env.PATH_SIGNED);
+
 // ✅ GET document types - Simple GET, no files needed
 router.get('/get-type', authCheck, getTypeController);
 
@@ -29,13 +28,12 @@ router.get(
   getJsonController
 );
 
-router.get('/get-files/:time/:folder', authCheck, getFilesController)
+router.get('/get-files/:time', authCheck, getFilesController);
 const allowedOrigin = process.env.PDF_URL;
 
-router.get('/files/:filename/:folder', (req, res) => {
-  const { filename,folder } = req.params;
-  let filePath;
-  if(folder == "signed"){filePath = path.join(SIGNED_DIR, filename); } else{   filePath = path.join(UNSIGNED_DIR, filename); }
+router.get('/files/:filename', (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(UNSIGNED_DIR, filename);
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).send("File not found");
