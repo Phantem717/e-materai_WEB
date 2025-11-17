@@ -8,6 +8,8 @@ import RetrieveAPI from '@/utils/api/retrieve';
 import { TokenStorage } from '@/utils/tokenStorage';
 import StampingAPI from '@/utils/api/stamping';
 const { TabPane } = Tabs;
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 import Swal from 'sweetalert2';
 const PDFViewer = () => {
   const [files, setFiles] = useState([]);
@@ -20,12 +22,14 @@ const PDFViewer = () => {
 
   useEffect(() => {
       const tipe = sessionStorage.getItem("tipeDokumen");
+
       setTipe(tipe);
     const loadFiles = async () => {
       try {
         const timestamp = sessionStorage.getItem("timestamp");
         const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
         setMetadata(storedList);
+        console.log("STORED",storedList);
 
         if (!storedList || storedList.length === 0) return;
 
@@ -177,6 +181,52 @@ const response = await fetch(file.apiUrl, {
       </Layout>
     );
   }
+  const handleDownloadAll = async () => {
+  const zip = new JSZip();
+  const folder = zip.folder("documents");
+
+  Swal.fire({
+    title: "Downloading...",
+    html: "Please wait while we download all files.",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading(),
+  });
+
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      console.log("Downloading:", file.name);
+
+      const response = await fetch(file.apiUrl, { credentials: "include" });
+
+      if (!response.ok) {
+        console.error(`Failed to download ${file.name}`);
+        continue;
+      }
+
+      const blob = await response.blob();
+      folder.file(file.name, blob);
+    }
+
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    saveAs(zipBlob, `documents_${Date.now()}.zip`);
+
+    Swal.close();
+
+    Swal.fire({
+      icon: "success",
+      title: "Download Complete",
+      text: "All documents have been downloaded as ZIP.",
+    });
+
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Download Failed",
+      text: error.message,
+    });
+  }
+};
 
   return (
     <Layout
@@ -268,15 +318,24 @@ const response = await fetch(file.apiUrl, {
           </Tabs>
 
           {/* Submit Button */}
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="w-full bg-green-500 rounded-lg p-3 font-bold text-2xl text-white hover:bg-green-600"
-            >
-              Submit
-            </button>
-          </div>
+         <div className="mt-4 flex gap-3">
+  <button
+    type="button"
+    onClick={handleSubmit}
+    className="w-1/2 bg-green-500 rounded-lg p-3 font-bold text-xl text-white hover:bg-green-600"
+  >
+    Submit
+  </button>
+
+  <button
+    type="button"
+    onClick={handleDownloadAll}
+    className="w-1/2 bg-blue-500 rounded-lg p-3 font-bold text-xl text-white hover:bg-blue-600"
+  >
+    Download All
+  </button>
+</div>
+
         </div>
       </div>
 

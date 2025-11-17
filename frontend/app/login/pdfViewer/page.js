@@ -9,6 +9,9 @@ import { TokenStorage } from '@/utils/tokenStorage';
 import StampingAPI from '@/utils/api/stamping';
 const { TabPane } = Tabs;
 import Swal from 'sweetalert2';
+
+
+
 const PDFViewer = () => {
   const [files, setFiles] = useState([]);
   const [metadata, setMetadata] = useState([]);
@@ -26,7 +29,7 @@ const PDFViewer = () => {
         const timestamp = sessionStorage.getItem("timestamp");
         const storedList = JSON.parse(sessionStorage.getItem("filesMetadata")) || [];
         setMetadata(storedList);
-
+        console.log("STORED",storedList);
         if (!storedList || storedList.length === 0) return;
 
         const filesResp = await RetrieveAPI.getFiles(timestamp);
@@ -182,6 +185,7 @@ const response = await fetch(file.apiUrl, {
     );
   }
 
+
   return (
     <Layout
       className="w-screen min-h-screen"
@@ -263,6 +267,7 @@ const response = await fetch(file.apiUrl, {
                         >
                           Load PDF
                         </Button>
+
                       </div>
                     )}
                   </div>
@@ -280,6 +285,7 @@ const response = await fetch(file.apiUrl, {
             >
               Submit
             </button>
+
           </div>
         </div>
       </div>
