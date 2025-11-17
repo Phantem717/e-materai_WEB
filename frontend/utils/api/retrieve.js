@@ -102,7 +102,7 @@ const RetrieveAPI = {
   }
 
             // ✅ CORRECT: Headers in 3rd parameter (config object)
-           const response = await axios.get(`${BASE_URL}/api/retrieve/get-files/${time}/${folder}`, {
+           const response = await axios.get(`${BASE_URL}/api/retrieve/get-files/${time}`, {
   headers: header
 });
 
