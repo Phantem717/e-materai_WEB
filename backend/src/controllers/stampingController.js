@@ -89,7 +89,7 @@ const stampingController = async (req,res) => {
         const payload = {
             src: file,
             spesimenPath: stamp,
-            token : headers,
+            token : headers.split(" ")[1],
             dest: filePath,
             type: tipeDokumen,
             refToken: serial_number[0]?.serial_number

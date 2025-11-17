@@ -4,7 +4,6 @@ import { Layout, Tabs } from 'antd';
 import { Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
-import PinCard from '@/app/component/pinCard';
 import RetrieveAPI from '@/utils/api/retrieve';
 import { TokenStorage } from '@/utils/tokenStorage';
 import StampingAPI from '@/utils/api/stamping';
@@ -300,7 +299,6 @@ else{
         </div>
       </div>
 
-      {/* PIN Modal */}
     </Layout>
   );
 };
