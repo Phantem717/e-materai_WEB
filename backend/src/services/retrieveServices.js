@@ -73,7 +73,7 @@ const getDocumentsByBatch = async (title,type) => {
 
         console.log("FILES",allFiles);
         const matchingFiles = allFiles.filter(file => {
-            return file.endsWith('.pdf') && file.startsWith({title});
+            return  file.startsWith(title);
         });
 
         console.log(`Files starting with 1 "${title}":`, matchingFiles.length);
@@ -116,7 +116,7 @@ const getDocumentByName = async (title) => {
     // Find the closest matching file
     const matchingFiles = allfiles.filter((file) => {
       const normalizedFile = file.toLowerCase().replace(/[-]/g, "_");
-      return normalizedFile.includes(normalizedTitle) && file.endsWith(".pdf");
+      return normalizedFile.includes(normalizedTitle) ;
     });
 
     if (matchingFiles.length === 0) {
@@ -152,7 +152,7 @@ const getStampedBatch = async (title) => {
         const allFiles = fs.readdirSync(SIGNED_DIR);
         console.log("FILES",allFiles);
         const matchingFiles = allFiles.filter(file => {
-                      return file.endsWith('.pdf') && file.startsWith(`FINAL_${title}`);
+            return   file.startsWith(`FINAL_${title}`);
         });
 
         console.log(`Files starting with 2 "${title}":`, matchingFiles.length);
@@ -193,7 +193,7 @@ try {
     // Find the closest matching file
     const matchingFiles = allQR.filter((qr) => {
       const normalizedFile = qr.toLowerCase().replace(/[-]/g, "_");
-      return normalizedFile.includes(normalizedTitle) && qr.endsWith(".png");
+      return normalizedFile.includes(normalizedTitle) 
     });
 
     if (matchingFiles.length === 0) {
