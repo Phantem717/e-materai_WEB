@@ -67,17 +67,10 @@ const getDocumentsByBatch = async (title,type, folder) => {
         if (!fs.existsSync(UNSIGNED_DIR) || !fs.existsSync(SIGNED_DIR) ) {
             return [];
         }
-        let allFiles;
-        let dir;
         
-        if(folder == "signed"){
-            allFiles = fs.readdirSync(SIGNED_DIR);
-            dir=SIGNED_DIR;
-        }
-        else{
-        allFiles = fs.readdirSync(UNSIGNED_DIR);
-          dir=UNSIGNED_DIR;
-        }
+     
+       const allFiles = fs.readdirSync(UNSIGNED_DIR);
+
         console.log("FILES",allFiles);
         const matchingFiles = allFiles.filter(file => {
             return file.endsWith('.pdf') && file.startsWith(title);
@@ -86,7 +79,7 @@ const getDocumentsByBatch = async (title,type, folder) => {
         console.log(`Files starting with "${title}":`, matchingFiles.length);
 
         return matchingFiles.map(filename => {
-            const filePath = path.join(dir, filename);
+            const filePath = path.join(UNSIGNED_DIR, filename);
             const stats = fs.statSync(filePath);
 
             return {
