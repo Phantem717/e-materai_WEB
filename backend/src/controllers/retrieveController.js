@@ -1,4 +1,4 @@
-const { getTypes, retrieveJSON,getDocumentsByBatch } = require('../services/retrieveServices');
+const { getTypes, retrieveJSON,getDocumentsByBatch, getStampedBatch } = require('../services/retrieveServices');
 const {create} = require('../models/responseModel');
 const {saveQR} = require('../services/saveFileService')
 const path = require('path');
@@ -162,4 +162,33 @@ const getFilesController = async (req,res) => {
   }
 };
 
-module.exports = {getTypeController,getJsonController, getFilesController};
+const getStampedController = async (req,res) => {
+try {
+    const {time}  = req.params;
+    console.log("GET FILES",time)
+    if (!time) {
+      return res.status(400).json({ 
+        status: 400,
+        message: "Payload parameter is required" 
+      });
+    }
+
+    const files = await getStampedBatch(time);
+
+    return res.status(200).json({ 
+      status: 200,
+      message: "Documents retrieved successfully",
+      data: files
+    });
+
+  } catch (error) {
+    console.error("❌ GetFILES Controller Failed:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Failed to get documents",
+      error: error.message
+    });
+  }
+};
+
+module.exports = {getTypeController,getJsonController, getFilesController,getStampedController};

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authCheck = require('../middleware/authMiddleware.js');
-const { getTypeController, getJsonController,getFilesController } = require('../controllers/retrieveController');
+const { getTypeController, getJsonController,getFilesController,getStampedController } = require('../controllers/retrieveController');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
@@ -10,7 +10,7 @@ require('dotenv').config();
 // ROUTES
 // ============================================
 const UNSIGNED_DIR = path.join(process.env.PATH_UNSIGNED);
-
+const SIGNED_DIR = path.join(process.env.PATH_SIGNED);
 // ✅ GET document types - Simple GET, no files needed
 router.get('/get-type', authCheck, getTypeController);
 
@@ -29,11 +29,39 @@ router.get(
 );
 
 router.get('/get-files/:time', authCheck, getFilesController);
+router.get('/get-stamped/:time', authCheck, getStampedController);
 const allowedOrigin = process.env.PDF_URL;
 
 router.get('/files/:filename', (req, res) => {
   const { filename } = req.params;
   const filePath = path.join(UNSIGNED_DIR, filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send("File not found");
+  }
+
+  // ✅ Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin); 
+  res.setHeader('Access-Control-Allow-Credentials', 'true'); 
+  res.setHeader('Access-Control-Allow-Methods', 'GET'); 
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+
+  // ✅ PDF headers
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error("Error sending PDF:", err);
+      res.status(500).send("Failed to send file");
+    }
+  });
+});
+
+
+router.get('/files-stamped/:filename', (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(SIGNED_DIR, filename);
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).send("File not found");

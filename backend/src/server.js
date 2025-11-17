@@ -33,7 +33,7 @@ app.set('socketio',io);
   app.use('/api/webhook', webhookRoutes);
   app.use('/api/responses',responseRoutes);
 app.use('/unsigned', express.static('/home/sirs/signadapter/sharefolder/UNSIGNED'));
-
+app.use('/signed', express.static('/home/sirs/signadapter/sharefolder/SIGNED'));
   [STAMP_DIR, UNSIGNED_DIR, SIGNED_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
