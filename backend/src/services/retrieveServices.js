@@ -143,7 +143,7 @@ const getDocumentByName = async (title) => {
   }
 }
 
-const getStampedBatch = async (title) => {
+const getStampedBatch = async (title,type) => {
     try {
         if (!fs.existsSync(SIGNED_DIR)) {
             return [];
