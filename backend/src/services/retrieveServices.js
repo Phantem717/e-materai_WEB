@@ -170,7 +170,7 @@ const getStampedBatch = async (title) => {
 
             return {
                 filename: filename,
-                url: `${process.env.BASE_URL}/api/retrieve/files/${filename}`,
+                url: `${process.env.BASE_URL}/api/retrieve/files-stamped/${filename}`,
                 size: stats.size,
                 modified: stats.mtime,
                 type: type
@@ -183,36 +183,48 @@ const getStampedBatch = async (title) => {
     }
 }
 const getStamp = async (title) => {
-  try {
-        if (!fs.existsSync(SIGNED_DIR)) {
-            return [];
-        }
-
-        const allFiles = fs.readdirSync(SIGNED_DIR);
-        console.log("FILES",allFiles);
-        const matchingFiles = allFiles.filter(file => {
-            return file.endsWith('.pdf') && file.startsWith(title);
-        });
-
-        console.log(`Files starting with "${title}":`, matchingFiles.length);
-
-        return matchingFiles.map(filename => {
-            const filePath = path.join(SIGNED_DIR, filename);
-            const stats = fs.statSync(filePath);
-
-            return {
-                filename: filename,
-                url: `${process.env.BASE_URL}/api/retrieve/files-stamped/${filename}`,
-                size: stats.size,
-                modified: stats.mtime,
-                type: type
-            };
-        });
-
-    } catch (error) {
-        console.error(`Error in getFilesByPrefix:`, error);
-        return [];
+try {
+    if (!fs.existsSync(STAMP_DIR)) {
+      console.warn("STAMP_DIR does not exist:", STAMP_DIR);
+      return null;
     }
+
+    const allQR = fs.readdirSync(STAMP_DIR);
+    console.log("🔍 Total files in STAMP_DIR:", allQR.length);
+
+    const cleanTitle = title.trim().toLowerCase();
+
+    // Replace dashes with underscores for comparison flexibility
+    const normalizedTitle = cleanTitle.replace(/[-]/g, "_");
+
+    // Find the closest matching file
+    const matchingFiles = allQR.filter((qr) => {
+      const normalizedFile = qr.toLowerCase().replace(/[-]/g, "_");
+      return normalizedFile.includes(normalizedTitle) && qr.endsWith(".png");
+    });
+
+    if (matchingFiles.length === 0) {
+      console.warn(`⚠️ No matching .png found for prefix "${title}"`);
+      return null;
+    }
+
+    // If multiple, return the most recently modified one
+    const chosen =
+      matchingFiles.length > 1
+        ? matchingFiles.sort((a, b) => {
+            const aTime = fs.statSync(path.join(STAMP_DIR, a)).mtime;
+            const bTime = fs.statSync(path.join(STAMP_DIR, b)).mtime;
+            return bTime - aTime;
+          })[0]
+        : matchingFiles[0];
+
+    console.log("✅ Found match:", chosen);
+    return path.join(STAMP_DIR, chosen);
+
+  } catch (error) {
+    console.error("❌ Error in getStamp:", error);
+    return null;
+  }
 };
 
 
