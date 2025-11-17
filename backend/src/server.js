@@ -7,7 +7,7 @@ const { STAMP_DIR, UNSIGNED_DIR, SIGNED_DIR } = require('./utils/savePDF');
 const socketIo = require('socket.io');
 const { initDb } = require('./config/db');
 const { setupDatabase } = require('./setupDatabase');
-
+const HOST = process.env.PDF_URL;
 
 require('dotenv').config({ path: './.env' }); // Or just require('dotenv').config();
 
@@ -24,15 +24,24 @@ const socketConfig = require('../src/config/socket'); // ? Import socket setup
 const io = socketConfig.init(server);
 app.set('socketio',io);
   // Middleware untuk parsing JSON dan CORS
-  app.use(cors({ origin: "*" })); // 🔥 Izinkan akses dari mana saja
-  app.use(express.json());
+app.use(
+  cors({
+    origin: HOST,
+    credentials: true,
+  })
+);  app.use(express.json());
   app.use('/api/login',loginRoutes);
   app.use('/api/create-qr',createQrRoutes);
   app.use('/api/retrieve',retrieveRoutes);
   app.use('/api/stamp',stampingRoutes);
   app.use('/api/webhook', webhookRoutes);
   app.use('/api/responses',responseRoutes);
-app.use('/unsigned', express.static('/home/sirs/signadapter/sharefolder/UNSIGNED'));
+app.use('/unsigned', cors({ origin: HOST, credentials: true }), express.static('/home/sirs/signadapter/sharefolder/UNSIGNED'));
+app.use(
+  "/signed",
+  cors({ origin: HOST, credentials: true }),
+  express.static(`/home/sirs/signadapter/sharefolder/SIGNED`)
+);
 
   [STAMP_DIR, UNSIGNED_DIR, SIGNED_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) {
