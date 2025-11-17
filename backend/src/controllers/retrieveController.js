@@ -144,7 +144,7 @@ const getFilesController = async (req,res) => {
       });
     }
 
-    const files = await getDocumentsByBatch(time,"-",folder);
+    const files = await getDocumentsByBatch(time);
 
     return res.status(200).json({ 
       status: 200,
